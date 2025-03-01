@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Link to your manifest -->
+  <link rel="manifest" href="manifest.json">
+  <title>HTML PWA Creator</title>
+  <style>
+    textarea { width: 100%; height: 200px; }
+    iframe { width: 100%; border: 1px solid #ccc; }
+    button { margin: 5px; }
+    #previewFrame { height: 300px; }
+  </style>
+</head>
+<body>
+  <!-- Editor UI -->
+  <div id="editorUI">
+    <h1>Create Your Own PWA</h1>
+    <label for="appName">App Name:</label>
+    <input type="text" id="appName" placeholder="Enter your app name">
+    <p>Slug: <span id="slugDisplay"></span></p>
+    <textarea id="htmlInput" placeholder="Enter your HTML code here"></textarea>
+    <br>
+    <button id="saveBtn">Save &amp; Preview</button>
+    <button id="exportBtn">Export App</button>
+    <button id="viewAppBtn">View App</button>
+    <h2>Preview:</h2>
+    <iframe id="previewFrame"></iframe>
+  </div>
+
+  <!-- App View Mode -->
+  <div id="appView" style="display:none; width:100%; height:100vh;">
+    <iframe id="appFrame" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+
+  <script>
+    // Utility: Convert a string into a URL-friendly slug.
+    function slugify(text) {
+      return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')         // Remove all non-word chars
+        .replace(/\-\-+/g, '-');          // Replace multiple - with single -
+    }
+
+    // Check if the URL contains the "app" parameter to switch modes.
+    const urlParams = new URLSearchParams(window.location.search);
+    const appSlug = urlParams.get('app');
+
+    if (appSlug) {
+      // APP VIEW MODE: Hide editor and show the standalone app.
+      document.getElementById('editorUI').style.display = 'none';
+      document.getElementById('appView').style.display = 'block';
+
+      // Retrieve the saved HTML and app name using the slug.
+      var savedHTML = localStorage.getItem('userHTML-' + appSlug);
+      var savedAppName = localStorage.getItem('userAppName-' + appSlug);
+
+      if (savedAppName) {
+        document.title = savedAppName;
+      }
+
+      // If no HTML is found for this slug, display a friendly message.
+      if (!savedHTML) {
+        savedHTML = '<h1>App not found</h1><p>Please go back and save your app.</p>';
+      }
+      document.getElementById('appFrame').srcdoc = savedHTML;
+    } else {
+      // EDITOR MODE: Show editor UI and hide app view.
+      document.getElementById('editorUI').style.display = 'block';
+      document.getElementById('appView').style.display = 'none';
+
+      // Register the service worker.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(function(error) {
+            console.error('Service Worker registration failed:', error);
+          });
+      }
+
+      // Update the slug display as the user types the app name.
+      const appNameInput = document.getElementById('appName');
+      const slugDisplay = document.getElementById('slugDisplay');
+
+      appNameInput.addEventListener('input', function() {
+        const slug = slugify(appNameInput.value);
+        slugDisplay.textContent = slug;
+      });
+
+      // On DOM load, if there's previously saved HTML for the default/current slug, load it.
+      document.addEventListener('DOMContentLoaded', function() {
+        // Optionally, load the current app if a name was saved.
+        const currentSlug = slugify(appNameInput.value);
+        if (currentSlug) {
+          const savedHTML = localStorage.getItem('userHTML-' + currentSlug);
+          if (savedHTML) {
+            document.getElementById('htmlInput').value = savedHTML;
+            document.getElementById('previewFrame').srcdoc = savedHTML;
+          }
+        }
+      });
+
+      // Save the user's HTML code along with the app name and update the preview.
+      document.getElementById('saveBtn').addEventListener('click', function() {
+        const appName = appNameInput.value;
+        const slug = slugify(appName);
+        const htmlCode = document.getElementById('htmlInput').value;
+        // Save using a key that includes the slug.
+        localStorage.setItem('userHTML-' + slug, htmlCode);
+        localStorage.setItem('userAppName-' + slug, appName);
+        // Update preview
+        document.getElementById('previewFrame').srcdoc = htmlCode;
+      });
+
+      // Export the user's HTML code as a downloadable file.
+      document.getElementById('exportBtn').addEventListener('click', function() {
+        const htmlCode = document.getElementById('htmlInput').value;
+        var blob = new Blob([htmlCode], { type: 'text/html' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'myApp.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // "View App" button: Save and navigate to the custom URL.
+      document.getElementById('viewAppBtn').addEventListener('click', function() {
+        const appName = appNameInput.value;
+        const slug = slugify(appName);
+        const htmlCode = document.getElementById('htmlInput').value;
+        // Save the current app using the slug.
+        localStorage.setItem('userHTML-' + slug, htmlCode);
+        localStorage.setItem('userAppName-' + slug, appName);
+        // Navigate to the custom URL (app view mode)
+        window.location.search = '?app=' + slug;
+      });
+    }
+  </script>
+</body>
+</html>
