@@ -5,18 +5,19 @@ This project uses the ["Progressive Web App"](https://web.dev/explore/progressiv
 https://danieljonce.github.io/pwa/
 
 # What
-A PWA that lets users quickly create a PWA and serve it from their own phone, tablet, or computer.
+A web app that lets users quickly generate and host their own personal web app and use it from their own phone, tablet, or computer.
 
 # Why
-With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps like a Mad Gab style game for a birthday party or a leader board for a game night or, perhaps, a custom calculator for a specific project, has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired.
+With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired.
 
 # How
-1) Paste in a single page of HTML
-2) Give the app a name
-3) Click "View App"
+1) [Visit the running app](https://danieljonce.github.io/pwa/) and use the "Add to Home Screen" in iOS or Android to put the PWA Generator on your phone or tablet's homescreen.
+2) Exit your browser, find the icon, and open the PWA Generator from your homescreen
+3) Paste in a single page of HTML
+4) Click "View App"
 
 # Examples
-Try copying and pasting one of these pages of HTML into the [running version of this project](https://danieljonce.github.io/pwa/).
+To try it out now, try copying and pasting one of these example web apps:
 
 ## Simple Todo App:
 
