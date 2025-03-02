@@ -11,12 +11,21 @@
     iframe { width: 100%; border: 1px solid #ccc; }
     button { margin: 5px; }
     #previewFrame { height: 300px; }
+    .size-full { float: right; }
   </style>
 </head>
 <body>
   <!-- Editor UI -->
   <div id="editorUI">
-    <h1>Create Your Own PWA</h1>
+    <a href="https://github.com/danieljonce/pwa"><img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy"></a>    <h1>Create A Private Web App</h1>
+    <p><i>Apps created here use the <a target="_blank" href="https://web.dev/explore/progressive-web-apps">"Progressive Web App"</a> technology built into most device browsers. Your app and its data are stored directly on your device, not available to the public, and not stored on this web server. If you want to share your app, provide your HTML code to the person you want to share it with and they can use this site to create their own version of your app to keep on their device.</i></p>
+    <p>Suggested Use:
+      <ol>
+        <li>Use your favorite LLM like Claude or ChatGPT to generate an app, make sure to tell it to create the app "as a single HTML file."</li>
+        <li>Paste the code it generates here and give it an "App Name."</li>
+        <li>Click the "View App" button (visible after code is pasted and the name is filled in) then use the "Add to Home Screen" feature of your iOS or Android device to save and use your app. </li>
+      </ol>
+    </p>
     <label for="appName">App Name:</label>
     <input type="text" id="appName" placeholder="Enter your app name">
     <p>Slug: <span id="slugDisplay"></span></p>
@@ -29,7 +38,7 @@
     <iframe id="previewFrame"></iframe>
   </div>
 
-  <!-- App View Mode -->
+  <!-- Fallback App View (used when service worker is unavailable) -->
   <div id="appView" style="display:none; width:100%; height:100vh;">
     <iframe id="appFrame" style="width:100%; height:100%; border:none;"></iframe>
   </div>
@@ -46,30 +55,30 @@
         .replace(/\-\-+/g, '-');          // Replace multiple - with single -
     }
 
-    // Check if the URL contains the "app" parameter to switch modes.
+    // Check if the URL contains the "app" parameter.
     const urlParams = new URLSearchParams(window.location.search);
     const appSlug = urlParams.get('app');
 
     if (appSlug) {
-      // APP VIEW MODE: Hide editor and show the standalone app.
+      // When the URL includes ?app=slug, we are in app view mode.
+      // In an installed PWA with an active service worker, the custom HTML
+      // (stored in Cache API) will be served directly.
+      // Here’s a fallback if the service worker isn’t active.
       document.getElementById('editorUI').style.display = 'none';
       document.getElementById('appView').style.display = 'block';
 
-      // Retrieve the saved HTML and app name using the slug.
       var savedHTML = localStorage.getItem('userHTML-' + appSlug);
       var savedAppName = localStorage.getItem('userAppName-' + appSlug);
 
       if (savedAppName) {
         document.title = savedAppName;
       }
-
-      // If no HTML is found for this slug, display a friendly message.
       if (!savedHTML) {
         savedHTML = '<h1>App not found</h1><p>Please go back and save your app.</p>';
       }
       document.getElementById('appFrame').srcdoc = savedHTML;
     } else {
-      // EDITOR MODE: Show editor UI and hide app view.
+      // Editor mode
       document.getElementById('editorUI').style.display = 'block';
       document.getElementById('appView').style.display = 'none';
 
@@ -84,63 +93,87 @@
           });
       }
 
-      // Update the slug display as the user types the app name.
       const appNameInput = document.getElementById('appName');
+      const htmlInput = document.getElementById('htmlInput');
       const slugDisplay = document.getElementById('slugDisplay');
+      const viewAppBtn = document.getElementById('viewAppBtn');
 
+      // Initially hide the "View App" button.
+      viewAppBtn.style.display = 'none';
+
+      // Helper function to update the visibility of the "View App" button.
+      function updateViewAppBtnVisibility() {
+        const appNameValue = appNameInput.value.trim();
+        const htmlValue = htmlInput.value.trim();
+        if (appNameValue === '' || htmlValue === '') {
+          viewAppBtn.style.display = 'none';
+        } else {
+          viewAppBtn.style.display = 'inline-block';
+        }
+      }
+
+      // Update slug and button visibility when App Name changes.
       appNameInput.addEventListener('input', function() {
         const slug = slugify(appNameInput.value);
         slugDisplay.textContent = slug;
+        updateViewAppBtnVisibility();
       });
 
-      // On DOM load, if there's previously saved HTML for the default/current slug, load it.
+      // Also update button visibility when HTML content changes.
+      htmlInput.addEventListener('input', updateViewAppBtnVisibility);
+
       document.addEventListener('DOMContentLoaded', function() {
-        // Optionally, load the current app if a name was saved.
         const currentSlug = slugify(appNameInput.value);
         if (currentSlug) {
           const savedHTML = localStorage.getItem('userHTML-' + currentSlug);
           if (savedHTML) {
-            document.getElementById('htmlInput').value = savedHTML;
+            htmlInput.value = savedHTML;
             document.getElementById('previewFrame').srcdoc = savedHTML;
           }
         }
       });
 
-      // Save the user's HTML code along with the app name and update the preview.
+      // Save and preview the app.
       document.getElementById('saveBtn').addEventListener('click', function() {
         const appName = appNameInput.value;
         const slug = slugify(appName);
-        const htmlCode = document.getElementById('htmlInput').value;
-        // Save using a key that includes the slug.
+        const htmlCode = htmlInput.value;
         localStorage.setItem('userHTML-' + slug, htmlCode);
         localStorage.setItem('userAppName-' + slug, appName);
-        // Update preview
         document.getElementById('previewFrame').srcdoc = htmlCode;
+        updateViewAppBtnVisibility();
       });
 
-      // Export the user's HTML code as a downloadable file.
+      // Export the app as a downloadable HTML file named "index.html".
       document.getElementById('exportBtn').addEventListener('click', function() {
-        const htmlCode = document.getElementById('htmlInput').value;
+        const htmlCode = htmlInput.value;
         var blob = new Blob([htmlCode], { type: 'text/html' });
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'myApp.html';
+        a.download = 'index.html';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       });
 
-      // "View App" button: Save and navigate to the custom URL.
+      // "View App": Save the custom HTML to both localStorage and the Cache API,
+      // then navigate to the custom URL.
       document.getElementById('viewAppBtn').addEventListener('click', function() {
         const appName = appNameInput.value;
         const slug = slugify(appName);
-        const htmlCode = document.getElementById('htmlInput').value;
-        // Save the current app using the slug.
+        const htmlCode = htmlInput.value;
         localStorage.setItem('userHTML-' + slug, htmlCode);
         localStorage.setItem('userAppName-' + slug, appName);
-        // Navigate to the custom URL (app view mode)
+
+        // Save the custom HTML in the Cache API so the service worker can serve it.
+        caches.open('pwaApps').then(cache => {
+          const response = new Response(htmlCode, { headers: { 'Content-Type': 'text/html' } });
+          cache.put(new Request('/apps/' + slug), response);
+        });
+
+        // Navigate to the URL with the custom app parameter.
         window.location.search = '?app=' + slug;
       });
     }
