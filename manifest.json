@@ -1,7 +1,7 @@
 {
   "short_name": "HTMLPWA",
   "name": "HTML PWA Creator",
-  "start_url": "/?app=harry",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
