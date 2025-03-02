@@ -12,7 +12,7 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 
 # How
 1) [Visit the running app](https://danieljonce.github.io/pwa/) and use the "Add to Home Screen" in iOS or Android to put the PWA Generator on your phone or tablet's homescreen.
-2) Exit your browser, find the icon, and open the PWA Generator from your homescreen
+2) Exit your browser, find the icon, and open the PWA Generator from your home screen
 3) Paste in a single page of HTML
 4) Click "View App"
 
