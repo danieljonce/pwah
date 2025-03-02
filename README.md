@@ -5,7 +5,7 @@ This project uses the ["Progressive Web App"](https://web.dev/explore/progressiv
 https://danieljonce.github.io/pwa/
 
 # What
-A PWA that lets users quickly create their own PWA and serve it from their own phone, tablet, or computer.
+A PWA that lets users quickly create a PWA and serve it from their own phone, tablet, or computer.
 
 # Why
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps like a quick Mad Gab style game for a kiddo's birthday party or a leader board for a game night or, perhaps, a custom calculator for a specific project, has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired.
