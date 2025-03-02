@@ -1,5 +1,5 @@
 # Personal Web App Generator
-This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most device browsers to quickly generate a working PWA hostable from a user's own device created from a single page of HTML. The users' created app and its associated data are stored directly on their device using the browser's local storage, are not available to the public, and not stored on a web server.
+This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly generate and host a PWA from a user's own device. The users' created app and its associated data are stored directly on their device using the browser's local storage, are not available to the public, and not stored on a web server.
 
 # Try it
 https://danieljonce.github.io/pwa/
