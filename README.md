@@ -17,7 +17,7 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 https://danieljonce.github.io/pwa/
 
 ## Examples
-To try it out now, try copying and pasting one of these example web apps:
+To try it out now, copy and paste one of these example web apps:
 
 ### Simple Todo App:
 
