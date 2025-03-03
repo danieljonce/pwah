@@ -1,8 +1,8 @@
-# Personal Web App Generator
+# Personal Web App Maker
 This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly generate and host a PWA from your own device. Your created app and its associated data are stored directly on your device using the browser's local storage, are not available to the public, and not stored on a web server.
 
 # What
-A web app that lets users quickly generate and host a web app to use from their personal phone, tablet, or computer.
+A public web app that lets users quickly make a personal web app to use from their phone, tablet, or computer.
 
 # Why
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired.
@@ -12,6 +12,8 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 2) Exit your browser, find the icon, and open the PWA Generator from your home screen
 3) Paste in a single page of HTML
 4) Click "View App"
+
+> Pro tip: When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
 
 # Try it
 https://danieljonce.github.io/pwa/
