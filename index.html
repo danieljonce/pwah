@@ -2,20 +2,70 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <!-- Make the page mobile-friendly -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Link to your manifest -->
   <link rel="manifest" href="manifest.json">
   <title>Personal Web App Host</title>
   <style>
-    textarea { width: 100%; height: 200px; }
-    iframe { width: 100%; border: 1px solid #ccc; }
-    button { margin: 5px; }
-    #previewFrame { height: 300px; }
-    .banner { float: right }
+    /* Base styling */
+    textarea {
+      width: 100%;
+      height: 200px;
+    }
+    iframe {
+      width: 100%;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin: 5px;
+    }
+    #previewFrame {
+      height: 300px;
+    }
+    .banner {
+      float: right;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .banner {
+        float: none; /* Remove float on smaller screens */
+        display: block;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      /* Make sure there's a bit of breathing room */
+      #editorUI, #appView {
+        padding: 10px;
+      }
+
+      /* Stack buttons vertically for easier taps */
+      button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+      }
+
+      /* Adjust textarea height on smaller screens */
+      textarea {
+        height: 150px;
+      }
+
+      /* Adjust preview height on smaller screens */
+      #previewFrame {
+        height: 250px;
+      }
+    }
   </style>
 </head>
 <body>
-  <a href="https://github.com/danieljonce/pwa"><img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" class="banner attachment-full size-full" alt="Fork me on GitHub" loading="lazy"></a>
+  <a href="https://github.com/danieljonce/pwa">
+    <img decoding="async" width="149" height="149"
+         src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+         class="banner attachment-full size-full" alt="Fork me on GitHub" loading="lazy">
+  </a>
   <!-- Editor UI -->
   <div id="editorUI" style="display: none;">
     <h1>Personal Web App Host</h1>
@@ -176,7 +226,8 @@
         const htmlCode = htmlInput.value;
         saveCustomHTML(currentAppId, htmlCode).then(function() {
           // Reload with the ?app=<currentAppId> query parameter.
-          window.location.href = window.location.origin + window.location.pathname + '?app=' + currentAppId;
+          window.location.href =
+            window.location.origin + window.location.pathname + '?app=' + currentAppId;
         });
       });
     });
