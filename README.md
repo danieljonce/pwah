@@ -1,5 +1,5 @@
 # Personal Web App Maker
-This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly generate and host a PWA from your own device. Your created app and its associated data are stored directly on your device using the browser's local storage, are not available to the public, and not stored on a web server.
+This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly make a PWA you can host on your personal device. Your created app and its associated data are stored directly on your device using the browser's local storage, are not available to the public, and not stored on a web server.
 
 # What
 A public web app that lets users quickly make a personal web app to use from their phone, tablet, or computer.
