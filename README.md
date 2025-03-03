@@ -5,7 +5,7 @@ This project uses the ["Progressive Web App"](https://web.dev/explore/progressiv
 https://danieljonce.github.io/pwa/
 
 # What
-A web app that lets users quickly generate and host their own personal web app and use it from their own phone, tablet, or computer.
+A web app that lets users quickly generate and host a web app to use from their personal phone, tablet, or computer.
 
 # Why
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired.
