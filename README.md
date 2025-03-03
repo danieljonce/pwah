@@ -1,9 +1,6 @@
 # Personal Web App Generator
 This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly generate and host a PWA from your own device. Your created app and its associated data are stored directly on your device using the browser's local storage, are not available to the public, and not stored on a web server.
 
-# Try it
-https://danieljonce.github.io/pwa/
-
 # What
 A web app that lets users quickly generate and host a web app to use from their personal phone, tablet, or computer.
 
@@ -16,10 +13,13 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 3) Paste in a single page of HTML
 4) Click "View App"
 
-# Examples
+# Try it
+https://danieljonce.github.io/pwa/
+
+## Examples
 To try it out now, try copying and pasting one of these example web apps:
 
-## Simple Todo App:
+### Simple Todo App:
 
 ```
 <!DOCTYPE html>
@@ -226,7 +226,7 @@ To try it out now, try copying and pasting one of these example web apps:
 
 ```
 
-## Side Scrolling Space Shooter
+### Side Scrolling Space Shooter
 
 ```
 <!DOCTYPE html>
