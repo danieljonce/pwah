@@ -8,7 +8,7 @@ A public web app that lets users quickly make a personal web app to use from the
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired.
 
 # How
-1) [Visit the running app](https://danieljonce.github.io/pwa/) and use the "Add to Home Screen" in iOS or Android to put the PWA Generator on your phone or tablet's homescreen.
+1) [Visit the running app](https://danieljonce.github.io/pwa/) and use the "Add to Home Screen" in iOS or Android to put the PWA Maker on your phone or tablet's homescreen.
 2) Exit your browser, find the icon, and open the PWA Maker from your home screen
 3) Paste in a single page of HTML
 4) Click "View App"
