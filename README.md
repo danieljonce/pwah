@@ -12,7 +12,7 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 
 # How
 1) [Visit the running app](https://pwah.io) and use the "Add to Home Screen" in iOS or Android to put PWAH on your phone or tablet's homescreen.
-2) Exit your browser, find the icon, name it for the app your about to created and open it, you will again see PWAH.
+2) Exit your browser, find the icon you just placed, open it, you will again see PWAH.
 3) Paste in a single page of HTML
 4) Click "View App"
 
