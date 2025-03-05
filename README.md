@@ -1,5 +1,6 @@
 > [!WARNING]
-> This is an early development stage proof of concept. Even though your app and its data lives on your phone, pwah is a public app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
+> 1) This is an early development stage proof of concept that, at its current stage, knowingly violates the ["Different Origins" PWA best practice](https://web.dev/articles/building-multiple-pwas-on-the-same-domain). Only install apps you trust and keep in mind if you wipe data for the pway.io origin, you lose all your other apps data too.
+> 2) Even though your app and its data lives on your phone, pwah is a public app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
 
 # Personal Web App Host. PWAH! You've got an app.
 This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly make a PWA you can host on your personal device. Your created app and its associated data are stored directly on your device using the browser's local storage, are not available to the public, and not stored on a web server.
