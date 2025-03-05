@@ -1,3 +1,6 @@
+> [!WARNING]
+> This is an early development stage proof of concept. Even though your app and its data lives on your phone, pwah is a public app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
+
 # Personal Web App Host. PWAH!
 This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly make a PWA you can host on your personal device. Your created app and its associated data are stored directly on your device using the browser's local storage, are not available to the public, and not stored on a web server.
 
@@ -13,7 +16,8 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 3) Paste in a single page of HTML
 4) Click "View App"
 
-> Pro tip: When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
+> [!TIP]
+> When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
 
 # Try it
 https://pwah.io
