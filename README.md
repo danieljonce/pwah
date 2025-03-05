@@ -1,5 +1,5 @@
 > [!WARNING]
-> 1) This is a proof of concept that, at its current stage, knowingly violates the ["Different Origins" PWA best practice]([https://web.dev/articles/building-multiple-pwas-on-the-same-domain](https://web.dev/articles/building-multiple-pwas-on-the-same-domain#using_the_same_origin)). Only install apps you trust and keep in mind if you wipe data for the pway.io origin, you lose all your other apps data too.
+> 1) This is a proof of concept that, at its current stage, knowingly violates the ["Different Origins" PWA best practice](https://web.dev/articles/building-multiple-pwas-on-the-same-domain#using_the_same_origin). Only install apps you trust and keep in mind if you wipe data for the pway.io origin, you lose all your other apps data too.
 > 2) Even though your app and its data lives on your phone, pwah is a public app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
 
 # Personal Web App Host. PWAH! You've got an app.
