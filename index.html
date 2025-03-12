@@ -60,11 +60,15 @@
   </style>
 </head>
 <body>
-  <a href="https://github.com/danieljonce/pwa">
-    <img decoding="async" width="149" height="149"
-         src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
-         class="banner attachment-full size-full" alt="Fork me on GitHub" loading="lazy">
-  </a>
+  <!-- Fork me on GitHub banner - only shown in editor mode -->
+  <div id="githubBanner">
+    <a href="https://github.com/danieljonce/pwa">
+      <img decoding="async" width="149" height="149"
+           src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+           class="banner attachment-full size-full" alt="Fork me on GitHub" loading="lazy">
+    </a>
+  </div>
+  
   <!-- Editor UI -->
   <div id="editorUI" style="display: none;">
     <h1>Personal Web App Host</h1>
@@ -75,7 +79,7 @@
     <br>
     <button id="saveBtn">Save &amp; Preview</button>
     <button id="exportBtn">Export App</button>
-    <button id="viewAppBtn" style="display: none;">View App</button>
+    <button id="viewAppBtn">View App</button>
     <h2>Preview</h2>
     <iframe id="previewFrame"></iframe>
   </div>
@@ -85,16 +89,14 @@
     <iframe id="appFrame" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 
-  <script>
-    // --- Helper: UUID Generator ---
-    function generateUUID() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-    }
+  <!-- Loading indicator -->
+  <div id="loadingUI" style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
+    <h2>Loading...</h2>
+    <p>Please wait while we set up your app.</p>
+  </div>
 
-    // --- IndexedDB Helpers (with appId parameter) ---
+  <script>
+    // --- IndexedDB Helpers ---
     function openDatabase() {
       return new Promise(function(resolve, reject) {
         const request = indexedDB.open('pwaGenerator', 1);
@@ -113,12 +115,15 @@
       });
     }
 
-    function getCustomHTML(appId) {
+    function getCustomHTML() {
+      // Use hostname as the unique key for the app
+      const appKey = window.location.hostname;
+      
       return openDatabase().then(function(db) {
         return new Promise(function(resolve, reject) {
           const transaction = db.transaction('app', 'readonly');
           const store = transaction.objectStore('app');
-          const getRequest = store.get(appId);
+          const getRequest = store.get(appKey);
           getRequest.onsuccess = function() {
             resolve(getRequest.result ? getRequest.result.html : null);
           };
@@ -129,12 +134,15 @@
       });
     }
 
-    function saveCustomHTML(appId, html) {
+    function saveCustomHTML(html) {
+      // Use hostname as the unique key for the app
+      const appKey = window.location.hostname;
+      
       return openDatabase().then(function(db) {
         return new Promise(function(resolve, reject) {
           const transaction = db.transaction('app', 'readwrite');
           const store = transaction.objectStore('app');
-          const putRequest = store.put({ id: appId, html: html });
+          const putRequest = store.put({ id: appKey, html: html });
           putRequest.onsuccess = function() {
             resolve();
           };
@@ -152,33 +160,20 @@
       });
     }
 
-    // --- Determine Current App ID ---
-    const urlParams = new URLSearchParams(window.location.search);
-    let currentAppId = urlParams.get('app');
-    // If no app id is present, generate a new one for this session.
-    if (!currentAppId) {
-      currentAppId = generateUUID();
-    }
-
     // --- App Initialization ---
     document.addEventListener('DOMContentLoaded', function() {
-      // Check if we're in "app view" mode (i.e. URL has ?app=<id>) and a saved app exists.
-      getCustomHTML(currentAppId).then(function(savedHTML) {
-        if (savedHTML && urlParams.has('app') && window.location.search.indexOf('edit') === -1) {
-          // Display the custom app view.
-          document.getElementById('editorUI').style.display = 'none';
-          document.getElementById('appView').style.display = 'block';
-          document.title = "Your Custom App";
-          document.getElementById('appFrame').srcdoc = savedHTML;
-        } else {
-          // Otherwise, show the editor UI.
-          document.getElementById('editorUI').style.display = 'block';
-        }
-      });
-
-      // Register the service worker.
+      // Show loading indicator initially
+      document.getElementById('loadingUI').style.display = 'flex';
+      document.getElementById('editorUI').style.display = 'none';
+      document.getElementById('appView').style.display = 'none';
+      
+      // Check if we're in edit mode (if "edit" is in the URL)
+      const isEditMode = window.location.pathname.includes('/edit');
+      
+      // Register the service worker first
+      let serviceWorkerPromise = Promise.resolve();
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
+        serviceWorkerPromise = navigator.serviceWorker.register('sw.js')
           .then(function(registration) {
             console.log('Service Worker registered with scope:', registration.scope);
           })
@@ -187,26 +182,46 @@
           });
       }
 
+      // Wait for both service worker registration and data retrieval
+      Promise.all([serviceWorkerPromise, getCustomHTML()])
+        .then(function(results) {
+          const savedHTML = results[1];
+          
+          // Hide loading UI
+          document.getElementById('loadingUI').style.display = 'none';
+          
+          if (savedHTML && !isEditMode) {
+            // Display the custom app view - hide GitHub banner
+            document.getElementById('editorUI').style.display = 'none';
+            document.getElementById('appView').style.display = 'block';
+            document.getElementById('githubBanner').style.display = 'none';
+            document.title = "Your Custom App";
+            document.getElementById('appFrame').srcdoc = savedHTML;
+          } else {
+            // Show the editor UI
+            document.getElementById('editorUI').style.display = 'block';
+            document.getElementById('githubBanner').style.display = 'block';
+            
+            // If there's saved HTML, populate the editor
+            if (savedHTML) {
+              document.getElementById('htmlInput').value = savedHTML;
+            }
+          }
+        });
+
       const htmlInput = document.getElementById('htmlInput');
       const previewFrame = document.getElementById('previewFrame');
       const viewAppBtn = document.getElementById('viewAppBtn');
 
-      // Update "View App" button visibility if there is HTML content.
-      function updateViewBtnVisibility() {
-        viewAppBtn.style.display = htmlInput.value.trim() ? 'inline-block' : 'none';
-      }
-      htmlInput.addEventListener('input', updateViewBtnVisibility);
-
-      // Save and preview the custom HTML.
+      // Save and preview the custom HTML
       document.getElementById('saveBtn').addEventListener('click', function() {
         const htmlCode = htmlInput.value;
-        saveCustomHTML(currentAppId, htmlCode).then(function() {
+        saveCustomHTML(htmlCode).then(function() {
           previewFrame.srcdoc = htmlCode;
-          updateViewBtnVisibility();
         });
       });
 
-      // Export the app as a downloadable "index.html".
+      // Export the app as a downloadable "index.html"
       document.getElementById('exportBtn').addEventListener('click', function() {
         const htmlCode = htmlInput.value;
         const blob = new Blob([htmlCode], { type: 'text/html' });
@@ -220,13 +235,12 @@
         URL.revokeObjectURL(url);
       });
 
-      // "View App": Save to IndexedDB then navigate to the same page with ?app=<currentAppId>.
+      // "View App": Save to IndexedDB then navigate to the root of the current hostname
       viewAppBtn.addEventListener('click', function() {
         const htmlCode = htmlInput.value;
-        saveCustomHTML(currentAppId, htmlCode).then(function() {
-          // Reload with the ?app=<currentAppId> query parameter.
-          window.location.href =
-            window.location.origin + window.location.pathname + '?app=' + currentAppId;
+        saveCustomHTML(htmlCode).then(function() {
+          // Navigate to the root URL of the current hostname
+          window.location.href = window.location.origin + '/';
         });
       });
     });

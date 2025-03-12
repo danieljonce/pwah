@@ -1,5 +1,5 @@
 > [!WARNING]
-> 1) This is a proof of concept that, at its current stage, knowingly violates the ["Seperate Origins" PWA best practice](https://web.dev/articles/building-multiple-pwas-on-the-same-domain#using_the_same_origin). Only install apps you trust and keep in mind if you wipe data for the pwah.io origin, you lose all data for all apps data.
+> 1) This is a proof of concept. Only install apps you trust and keep in mind if you wipe data for the pwah.io origin in your device browser, you lose all data for all apps.
 > 2) Even though your app and its data lives on your phone, pwah is a public app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
 
 # Personal Web App Host. PWAH! You've got an app.
@@ -12,7 +12,7 @@ It's a bit meta. This is a **public** web app that lets users quickly put **pers
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired.
 
 # How
-1) [Visit the running app](https://pwah.io) and use the "Add to Home Screen" in iOS or Android to put PWAH on your phone or tablet's homescreen.
+1) Visit your-app-name.pwah.io and use the "Add to Home Screen" in iOS or Android to put a unique PWAH app on your phone or tablet's homescreen.
 2) Exit your browser, find the icon you just placed, open it, you will again see PWAH.
 3) Paste in a single page of HTML
 4) Click "View App"
@@ -21,7 +21,7 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 > When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
 
 # Try it
-https://pwah.io
+Think of a name for your app, go to your device's browser and type in your-app-name.pwah.io
 
 ## Examples
 To try it out now, copy and paste one of these example web apps:
