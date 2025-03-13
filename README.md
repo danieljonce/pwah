@@ -3,7 +3,7 @@
 > 2) Your app lives on your phone but pwah is a public PWA app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
 
 > [!NOTE]
-> For now, expect this to only serve one app at a time. However, in iOS you can visit pwah.io from "Private" browsing tabs to have multiple apps on your device. I haven't tested this with Android devices.
+> For now, expect this to only serve one app at a time. However, in iOS you can visit pwah.io from "Private" browsing tabs in Safari to have multiple apps on your device. I haven't yet tested this with Android devices. One way to have multiple apps and ensure seperation of their data would be to host this on a server other than GitHub so you can use wildcard DNS to allow arbitrary app names as seperate origins (hostnames). Example: "my-custom-app.pwah.io" with much less risk of domain takeovers.
 
 # Personal Web App Host. PWAH! You've got an app.
 This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly make a mobile app you can host on your personal device. Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
@@ -18,13 +18,13 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 1) Visit https://pwah.io and use the "Add to Home Screen" in iOS or Android to put a PWAH on your phone or tablet's homescreen.
 2) Exit your browser, find the shortcut you just placed on your device, open it, you will again see PWAH.
 3) Paste in a single page of HTML
-4) Click "View App"
+4) Click "Start"
 
 > [!TIP]
 > When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
 
 # Try it
-Think of a name for your app, go to your device's browser and type in your-app-name.pwah.io
+Visit https://pwah.io and add it as a shortcut to your device's homescreen.
 
 ## Examples
 To try it out now, copy and paste one of these example web apps:
