@@ -11,28 +11,38 @@
     /* Base styling */
     textarea {
       width: 100%;
-      height: 200px;
-    }
-    iframe {
-      width: 100%;
-      border: 1px solid #ccc;
+      height: 300px;
+      margin-bottom: 15px;
     }
     button {
       margin: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
     }
-    #previewFrame {
-      height: 300px;
+    #startBtn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    #deleteBtn {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
     }
     .banner {
       float: right;
+    }
+    .button-container {
+      display: flex;
+      gap: 10px;
     }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
       .banner {
         display: none;
-        margin: 0 auto;
-        text-align: center;
       }
 
       /* Make sure there's a bit of breathing room */
@@ -41,6 +51,10 @@
       }
 
       /* Stack buttons vertically for easier taps */
+      .button-container {
+        flex-direction: column;
+      }
+      
       button {
         display: block;
         width: 100%;
@@ -49,12 +63,7 @@
 
       /* Adjust textarea height on smaller screens */
       textarea {
-        height: 150px;
-      }
-
-      /* Adjust preview height on smaller screens */
-      #previewFrame {
-        height: 250px;
+        height: 200px;
       }
     }
   </style>
@@ -76,12 +85,10 @@
     <p><a href="https://github.com/danieljonce/pwa">Learn more.</a></p>
     <h2>HTML</h2>
     <textarea id="htmlInput" placeholder="Enter your HTML code here"></textarea>
-    <br>
-    <button id="saveBtn">Save &amp; Preview</button>
-    <button id="exportBtn">Export App</button>
-    <button id="viewAppBtn">View App</button>
-    <h2>Preview</h2>
-    <iframe id="previewFrame"></iframe>
+    <div class="button-container">
+      <button id="startBtn" style="display: none;">Start</button>
+      <button id="deleteBtn" style="display: none;">Delete</button>
+    </div>
   </div>
 
   <!-- App View (shown when a custom app has been saved) -->
@@ -205,43 +212,40 @@
             // If there's saved HTML, populate the editor
             if (savedHTML) {
               document.getElementById('htmlInput').value = savedHTML;
+              updateButtonVisibility(true);
             }
           }
         });
 
       const htmlInput = document.getElementById('htmlInput');
-      const previewFrame = document.getElementById('previewFrame');
-      const viewAppBtn = document.getElementById('viewAppBtn');
+      const startBtn = document.getElementById('startBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
 
-      // Save and preview the custom HTML
-      document.getElementById('saveBtn').addEventListener('click', function() {
-        const htmlCode = htmlInput.value;
-        saveCustomHTML(htmlCode).then(function() {
-          previewFrame.srcdoc = htmlCode;
-        });
-      });
+      // Function to show/hide buttons based on whether there's code
+      function updateButtonVisibility(hasContent) {
+        startBtn.style.display = hasContent ? 'block' : 'none';
+        deleteBtn.style.display = hasContent ? 'block' : 'none';
+      }
 
-      // Export the app as a downloadable "index.html"
-      document.getElementById('exportBtn').addEventListener('click', function() {
-        const htmlCode = htmlInput.value;
-        const blob = new Blob([htmlCode], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'index.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+      // Monitor textarea for content to show/hide buttons
+      htmlInput.addEventListener('input', function() {
+        const hasContent = htmlInput.value.trim().length > 0;
+        updateButtonVisibility(hasContent);
       });
 
       // "View App": Save to IndexedDB then navigate to the root of the current hostname
-      viewAppBtn.addEventListener('click', function() {
+      startBtn.addEventListener('click', function() {
         const htmlCode = htmlInput.value;
         saveCustomHTML(htmlCode).then(function() {
           // Navigate to the root URL of the current hostname
           window.location.href = window.location.origin + '/';
         });
+      });
+
+      // "Clear Code": Clear the textarea and hide buttons
+      deleteBtn.addEventListener('click', function() {
+        htmlInput.value = '';
+        updateButtonVisibility(false);
       });
     });
   </script>
