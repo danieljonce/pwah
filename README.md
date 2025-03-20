@@ -1,11 +1,14 @@
 > [!WARNING]
-> 1) This is a proof of concept. Only install apps you trust and keep in mind if you wipe your browser data you lose your apps.
-> 2) Your app lives on your phone but pwah is a public PWA app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
+> This is a proof of concept. Only install apps you trust and keep in mind if you wipe your browser data you lose your apps.
 
 # How
-1) Visit https://pwah.io, type a name, click "Go"
-2) Paste your single page of HTML code.
-4) Click "Start"
+1) In your browser address bar type "your-app-name.pwah.io"
+2) Use the "Add to Homescreen" feature of your browser to add PWAH to your device.
+3) Close your browser and touch the new PWAH icon on your homescreen.
+4) Paste your single page of HTML and Click "Launch App."
+
+> [!NOTE]
+> Make sure to do step 2 before step 4 to avoid simply adding a browser bookmark to your device home screen instead of the PWAH wrapper for your new app.
 
 # Why
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired. This is especially true if you're testing out a quick idea or just need a simple app temporarily.
@@ -13,15 +16,14 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 # What
 It's a bit meta. This is a **public** web app that lets you quickly put **personal, local,** web apps on their phone, tablet, no app stores required. It's mostly for testing, prototyping, and development. Or perhaps quickly making a single page custom app for a birthday party or game night. We do this using the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers.
 
->[!NOTE]Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
-
-To add your app to your phone or tablet, use the "Add to Homescreen" feature of your browser.
+> [!NOTE]
+> Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
 
 > [!TIP]
 > When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
 
 # Try it
-Copy one of the below example web apps and visit https://pwah.io to get started.
+Copy one of the below example apps and visit https://pwah.io to get started.
 
 ### Simple Todo App:
 
