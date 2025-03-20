@@ -6,7 +6,7 @@
 2) Paste your single page of HTML code.
 4) Click "Start"
 
-> [!PROTIP]
+> [!TIP]
 > You can go directly to any arbitrary "app-name.pwah.io" to skip the first step.
 
 To add your app to your phone or tablet, use the "Add to Homescreen" feature of your browser. To delete an app, you'll need to delete the shortcut and also delete your device's browser data for your app's domain name (your-app-name.pwah.io).
