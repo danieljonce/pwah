@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <title>Personal Web App Host</title>
+  <style>
+    :root {
+      --primary-color: #2b303d;
+      --secondary-color: #2b303d;
+      --accent-color: #4cc9f0;
+      --danger-color: #ef476f;
+      --success-color: #06d6a0;
+      --background-color: #f8f9fa;
+      --text-color: #2b303d;
+      --light-gray: #e9ecef;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--background-color);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      margin-bottom: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: var(--secondary-color);
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    a:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+
+    .editor-card {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .editor-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--secondary-color);
+    }
+
+    textarea {
+      width: 100%;
+      height: 350px;
+      padding: 15px;
+      border: 2px solid var(--light-gray);
+      border-radius: var(--border-radius);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: vertical;
+      transition: var(--transition);
+      margin-bottom: 20px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.25);
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:focus {
+      outline: none;
+    }
+
+    #startBtn {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    #startBtn:hover {
+      background-color: #05b589;
+      transform: translateY(-2px);
+    }
+
+    #deleteBtn {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    #deleteBtn:hover {
+      background-color: #d63f60;
+      transform: translateY(-2px);
+    }
+
+    .banner {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    #loadingUI {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      background-color: white;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--light-gray);
+      border-top: 5px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #appFrame {
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }
+
+    .github-corner {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      fill: var(--primary-color);
+      color: white;
+      transition: var(--transition);
+    }
+
+    .github-corner:hover {
+      fill: var(--secondary-color);
+    }
+
+    .github-corner .octo-arm {
+      transform-origin: 130px 106px;
+    }
+
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+
+    @keyframes octocat-wave {
+      0%, 100% { transform: rotate(0); }
+      20%, 60% { transform: rotate(-25deg); }
+      40%, 80% { transform: rotate(10deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+      }
+
+      .editor-card {
+        padding: 20px;
+      }
+
+      .button-container {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .github-corner {
+        width: 60px;
+        height: 60px;
+      }
+
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- GitHub Corner -->
+  <div id="githubBanner">
+    <a href="https://github.com/danieljonce/pwa" class="github-corner" aria-label="View on GitHub">
+      <svg width="80" height="80" viewBox="0 0 250 250" style="position: absolute; top: 0; right: 0">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      </svg>
+    </a>
+  </div>
+  
+  <!-- Editor UI -->
+  <div id="editorUI" style="display: none;">
+    <div class="container">
+      <header>
+        <h1>Personal Web App Host</h1>
+        <h2>Quickly create and deploy a personal web app</h2>
+        <p><a href="https://github.com/danieljonce/pwa" target="_blank">Learn more about this project</a></p>
+      </header>
+      
+      <div class="editor-card">
+        <label for="htmlInput" class="editor-label">HTML Code</label>
+        <textarea id="htmlInput" placeholder="Enter your HTML code here"></textarea>
+        
+        <div class="button-container">
+          <button id="startBtn" style="display: none;">Launch App</button>
+          <button id="deleteBtn" style="display: none;">Clear Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App View (shown when a custom app has been saved) -->
+  <div id="appView" style="display: none; width:100%; height:100vh;">
+    <iframe id="appFrame" title="Your Custom App"></iframe>
+  </div>
+
+  <!-- Loading indicator -->
+  <div id="loadingUI">
+    <div class="loading-spinner"></div>
+    <h2>Loading your app...</h2>
+    <p>Please wait while we set everything up for you.</p>
+  </div>
+
+  <script>
+    // --- IndexedDB Helpers ---
+    function openDatabase() {
+      return new Promise(function(resolve, reject) {
+        const request = indexedDB.open('pwaGenerator', 1);
+        request.onupgradeneeded = function(event) {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains('app')) {
+            db.createObjectStore('app', { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = function(event) {
+          resolve(event.target.result);
+        };
+        request.onerror = function(event) {
+          reject(event.target.error);
+        };
+      });
+    }
+
+    function getCustomHTML() {
+      // Use hostname as the unique key for the app
+      const appKey = window.location.hostname;
+      
+      return openDatabase().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          const transaction = db.transaction('app', 'readonly');
+          const store = transaction.objectStore('app');
+          const getRequest = store.get(appKey);
+          getRequest.onsuccess = function() {
+            resolve(getRequest.result ? getRequest.result.html : null);
+          };
+          getRequest.onerror = function() {
+            resolve(null);
+          };
+        });
+      });
+    }
+
+    function saveCustomHTML(html) {
+      // Use hostname as the unique key for the app
+      const appKey = window.location.hostname;
+      
+      return openDatabase().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          const transaction = db.transaction('app', 'readwrite');
+          const store = transaction.objectStore('app');
+          const putRequest = store.put({ id: appKey, html: html });
+          putRequest.onsuccess = function() {
+            resolve();
+          };
+          putRequest.onerror = function() {
+            reject(putRequest.error);
+          };
+        });
+      });
+    }
+
+    // --- Request Persistent Storage ---
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then(function(granted) {
+        console.log("Persistent storage granted:", granted);
+      });
+    }
+
+    // --- App Initialization ---
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show loading indicator initially
+      document.getElementById('loadingUI').style.display = 'flex';
+      document.getElementById('editorUI').style.display = 'none';
+      document.getElementById('appView').style.display = 'none';
+      
+      // Check if we're in edit mode (if "edit" is in the URL)
+      const isEditMode = window.location.pathname.includes('/edit');
+      
+      // Register the service worker first
+      let serviceWorkerPromise = Promise.resolve();
+      if ('serviceWorker' in navigator) {
+        serviceWorkerPromise = navigator.serviceWorker.register('sw.js')
+          .then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(function(error) {
+            console.error('Service Worker registration failed:', error);
+          });
+      }
+
+      // Wait for both service worker registration and data retrieval
+      Promise.all([serviceWorkerPromise, getCustomHTML()])
+        .then(function(results) {
+          const savedHTML = results[1];
+          
+          // Hide loading UI
+          document.getElementById('loadingUI').style.display = 'none';
+          
+          if (savedHTML && !isEditMode) {
+            // Display the custom app view - hide GitHub banner
+            document.getElementById('editorUI').style.display = 'none';
+            document.getElementById('appView').style.display = 'block';
+            document.getElementById('githubBanner').style.display = 'none';
+            document.title = "Your Custom App";
+            document.getElementById('appFrame').srcdoc = savedHTML;
+          } else {
+            // Show the editor UI
+            document.getElementById('editorUI').style.display = 'block';
+            document.getElementById('githubBanner').style.display = 'block';
+            
+            // If there's saved HTML, populate the editor
+            if (savedHTML) {
+              document.getElementById('htmlInput').value = savedHTML;
+              updateButtonVisibility(true);
+            }
+          }
+        });
+
+      const htmlInput = document.getElementById('htmlInput');
+      const startBtn = document.getElementById('startBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
+
+      // Function to show/hide buttons based on whether there's code
+      function updateButtonVisibility(hasContent) {
+        startBtn.style.display = hasContent ? 'block' : 'none';
+        deleteBtn.style.display = hasContent ? 'block' : 'none';
+      }
+
+      // Monitor textarea for content to show/hide buttons
+      htmlInput.addEventListener('input', function() {
+        const hasContent = htmlInput.value.trim().length > 0;
+        updateButtonVisibility(hasContent);
+      });
+
+      // "View App": Save to IndexedDB then navigate to the root of the current hostname
+      startBtn.addEventListener('click', function() {
+        const htmlCode = htmlInput.value;
+        saveCustomHTML(htmlCode).then(function() {
+          // Navigate to the root URL of the current hostname
+          window.location.href = window.location.origin + '/';
+        });
+      });
+
+      // "Clear Code": Clear the textarea and hide buttons
+      deleteBtn.addEventListener('click', function() {
+        htmlInput.value = '';
+        updateButtonVisibility(false);
+      });
+    });
+  </script>
+</body>
+</html>
