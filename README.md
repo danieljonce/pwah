@@ -1,11 +1,10 @@
 > [!WARNING]
-> This is a proof of concept. Only install apps you trust and keep in mind if you wipe your browser data you lose your apps.
+> Only install apps you trust. If you clear your browser data, you delete your apps.
 
 # How
-1) In your browser address bar type "your-app-name.pwah.io"
-2) Use the "Add to Homescreen" feature of your browser to add PWAH to your device.
-3) Close your browser and touch the new PWAH icon on your homescreen.
-4) Paste your single page of HTML and Click "Launch App."
+1) Go to "your-app-name.pwah.io" and use "[Add to Homescreen](https://www.google.com/search?q=what+is+%22Add+to+Homescreen%22)."
+2) Close your browser and touch the new PWAH icon on your homescreen.
+3) Paste your single page of HTML and Click "Launch App."
 
 > [!NOTE]
 > Make sure to do step 2 before step 4 to avoid simply adding a browser bookmark to your device home screen instead of the PWAH wrapper for your new app.
