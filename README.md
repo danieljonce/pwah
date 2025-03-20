@@ -4,7 +4,7 @@
 # How
 1) Visit https://pwah.io, type a name, click "Go"
 2) Paste your single page of HTML code.
-4) Click "Start"
+3) Click "Launch App"
 
 > [!TIP]
 > You can go directly to any arbitrary "app-name.pwah.io" to skip the first step.
