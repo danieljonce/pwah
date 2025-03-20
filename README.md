@@ -1,33 +1,27 @@
 > [!WARNING]
-> 1) This is a proof of concept. Only install apps you trust and keep in mind if you wipe data for pwah.io in your browser, you lose your apps.
+> 1) This is a proof of concept. Only install apps you trust and keep in mind if you wipe your browser data you lose your apps.
 > 2) Your app lives on your phone but pwah is a public PWA app that wraps it. This means I could make a change to this code that could make your personal apps inaccessible to you. One way around this is to fork this repository and host it from GitHub pages yourself so there's no unexpected code changes.
 
-> [!NOTE]
-> For now, expect this to only serve one app at a time. However, in iOS you can visit pwah.io and "Add to Homescreen" using Safari's "Private" browsing tabs to have multiple apps on your device. I haven't yet tested this with Android devices. One way it may be possible to have multiple apps and ensure seperation of their data would be to host this on a server other than GitHub so you can use wildcard DNS and allow arbitrary app names as seperate origins (hostnames). Example: "my-custom-app.pwah.io." Again, I haven't yet tested this.
-
-# Personal Web App Host. PWAH! You've got an app.
-This project uses the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers to quickly make a mobile app you can host on your personal device. Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
-
-# What
-It's a bit meta. This is a **public** web app that lets users quickly put **personal** web apps on their phone, tablet, or computer, no app stores required. It's mostly for testing, prototyping, and development. Or perhaps quickly making a single page custom app for a birthday party or game night. Think quick, disposable app, not "THE NEXT FACEBOOK! TO THE MOON!"
+# How
+1) Visit https://pwah.io, type a name, click "Go"
+2) Paste your single page of HTML code.
+4) Click "Start"
 
 # Why
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired. This is especially true if you're testing out a quick idea or just need a simple app temporarily.
 
-# How
-1) Visit https://pwah.io and use the "Add to Home Screen" in iOS or Android to put a PWAH on your phone or tablet's homescreen.
-2) Exit your browser, find the shortcut you just placed on your device, open it, you will again see PWAH.
-3) Paste in a single page of HTML
-4) Click "Start"
+# What
+It's a bit meta. This is a **public** web app that lets you quickly put **personal, local,** web apps on their phone, tablet, no app stores required. It's mostly for testing, prototyping, and development. Or perhaps quickly making a single page custom app for a birthday party or game night. We do this using the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers.
+
+>[!NOTE]Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
+
+To add your app to your phone or tablet, use the "Add to Homescreen" feature of your browser.
 
 > [!TIP]
 > When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
 
 # Try it
-Visit https://pwah.io and add it as a shortcut to your device's homescreen.
-
-## Examples
-To try it out now, copy and paste one of these example web apps:
+Copy one of the below example web apps and visit https://pwah.io to get started.
 
 ### Simple Todo App:
 
