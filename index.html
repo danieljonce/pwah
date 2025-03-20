@@ -102,6 +102,52 @@
         button:active {
             transform: scale(0.98);
         }
+      
+        .github-corner {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 80px;
+          height: 80px;
+          fill: var(--primary-color);
+          color: white;
+          transition: var(--transition);
+        }
+
+        .github-corner:hover {
+          fill: var(--secondary-color);
+        }
+
+        .github-corner .octo-arm {
+          transform-origin: 130px 106px;
+        }
+
+        .github-corner:hover .octo-arm {
+          animation: octocat-wave 560ms ease-in-out;
+        }
+
+        @keyframes octocat-wave {
+          0%, 100% { transform: rotate(0); }
+          20%, 60% { transform: rotate(-25deg); }
+          40%, 80% { transform: rotate(10deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          
+          .github-corner {
+            width: 60px;
+            height: 60px;
+          }
+
+          .github-corner:hover .octo-arm {
+            animation: none;
+          }
+
+          .github-corner .octo-arm {
+            animation: octocat-wave 560ms ease-in-out;
+          }
+        }
     </style>
 </head>
 <body>
