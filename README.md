@@ -3,7 +3,7 @@
 
 # How
 1) In your browser address bar type "your-app-name.pwah.io"
-2) Use the "Add to Homescreen" feature of your device's browser to add PWAH to your device.
+2) Use the "Add to Homescreen" feature of your browser to add PWAH to your device.
 3) Close your browser and touch the new PWAH icon on your homescreen.
 4) Paste your single page of HTML and Click "Launch App"
 
