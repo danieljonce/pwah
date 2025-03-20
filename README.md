@@ -8,7 +8,7 @@
 4) Paste your single page of HTML and Click "Launch App"
 
 > [!NOTE]
-> Make sure to do step 2 before step 4 to avoid simply adding a browser bookmark to your devices' home screen instead of the PWAH wrapper for your new app.
+> Make sure to do step 2 before step 4 to avoid simply adding a browser bookmark to your device home screen instead of the PWAH wrapper for your new app.
 
 # Why
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired. This is especially true if you're testing out a quick idea or just need a simple app temporarily.
