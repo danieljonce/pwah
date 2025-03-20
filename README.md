@@ -17,13 +17,14 @@ With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, 
 # What
 It's a bit meta. This is a **public** web app that lets you quickly put **personal, local,** web apps on their phone, tablet, no app stores required. It's mostly for testing, prototyping, and development. Or perhaps quickly making a single page custom app for a birthday party or game night. We do this using the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers.
 
->[!NOTE]Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
+> [!NOTE]
+> Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
 
 > [!TIP]
 > When generating your app code with your preferred LLM, use the phrases "Create as a single page of html" and "make it mobile friendly" or similar.
 
 # Try it
-Copy one of the below example web apps and visit https://pwah.io to get started.
+Copy one of the below example apps and visit https://pwah.io to get started.
 
 ### Simple Todo App:
 
