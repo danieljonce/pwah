@@ -2,14 +2,13 @@
 > This is a proof of concept. Only install apps you trust and keep in mind if you wipe your browser data you lose your apps.
 
 # How
-1) Visit https://pwah.io, type a name, click "Go"
-2) Paste your single page of HTML code.
-3) Click "Launch App"
+1) In your browser address bar type "your-app-name.pwah.io"
+2) Use the "Add to Homescreen" feature of your device's browser to add PWAH to your device.
+3) Close your browser and touch the new PWAH icon on your homescreen.
+4) Paste your single page of HTML and Click "Launch App"
 
-> [!TIP]
-> You can go directly to any arbitrary "app-name.pwah.io" to skip the first step.
-
-To add your app to your phone or tablet, use the "Add to Homescreen" feature of your browser. To delete an app, you'll need to delete the shortcut and also delete your device's browser data for your app's domain name (your-app-name.pwah.io).
+> ![!NOTE]
+> Make sure to do step 2 before step 4 to avoid simply adding a browser bookmark to your devices' home screen instead of the PWAH wrapper for your new app.
 
 # Why
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired. This is especially true if you're testing out a quick idea or just need a simple app temporarily.
