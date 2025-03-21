@@ -1,5 +1,5 @@
 > [!WARNING]
-> Only install apps you trust. If you clear your browser data you'll need to repaste and relaunch your app.
+> Only install apps you trust.
 
 # How
 1) Go to "your-app-name.pwah.io" and use "[Add to Homescreen](https://www.google.com/search?q=what+is+%22Add+to+Homescreen%22)."
