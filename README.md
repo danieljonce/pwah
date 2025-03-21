@@ -10,7 +10,7 @@
 With LLMs like DeepSeek, Llama, ChatGPT and Claude, quickly generating one-off, custom, personal apps has become feasable. However, after the code is generated and tweaked, hosting these types of apps with a public web server is often not needed or even desired. This is especially true if you're testing out a quick idea or just need a simple app temporarily.
 
 # What
-It's a bit meta. This is a **public** web app that lets you quickly put **personal, local,** web apps on their phone, tablet, no app stores required. It's mostly for testing, prototyping, and development. Or perhaps quickly making a single page custom app for a birthday party or game night. We do this using the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers.
+It's a bit meta. This is a **public** web app that lets you quickly put **personal, local,** web apps on your phone or tablet, no app stores required. It's mostly for testing, prototyping, and development. Or perhaps quickly making a single page custom app for a birthday party or game night. We do this using the ["Progressive Web App"](https://web.dev/explore/progressive-web-apps) technology built into most browsers.
 
 > [!NOTE]
 > Your created app and its associated data are stored directly on your device using the devices storage, are not available to the public, and not stored on a web server. There's pros and cons to this approach.
