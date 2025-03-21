@@ -1,7 +1,7 @@
 {
   "short_name": "PWAH",
-  "name": "Personal",
-  "start_url": "/?source=pwa",
+  "name": "Personal Web App Host",
+  "start_url": "/edit?source=pwa",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",

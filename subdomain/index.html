@@ -414,11 +414,11 @@
     // --- IndexedDB Helpers ---
     function openDatabase() {
       return new Promise(function(resolve, reject) {
-        const request = indexedDB.open('pwaGenerator', 1);
+        const request = indexedDB.open('pwaGenerator', 2); // Increment version to trigger upgrade
         request.onupgradeneeded = function(event) {
           const db = event.target.result;
           if (!db.objectStoreNames.contains('app')) {
-            db.createObjectStore('app', { keyPath: 'id' });
+            const store = db.createObjectStore('app', { keyPath: 'id' });
           }
         };
         request.onsuccess = function(event) {
@@ -440,7 +440,28 @@
           const store = transaction.objectStore('app');
           const getRequest = store.get(appKey);
           getRequest.onsuccess = function() {
-            resolve(getRequest.result ? getRequest.result.html : null);
+            // Return both HTML and gistUrl if available
+            if (getRequest.result) {
+              // If result has both properties
+              if (getRequest.result.html && 'gistUrl' in getRequest.result) {
+                resolve({
+                  html: getRequest.result.html,
+                  gistUrl: getRequest.result.gistUrl
+                });
+              } 
+              // For backward compatibility with old data format
+              else if (typeof getRequest.result.html === 'string') {
+                resolve({
+                  html: getRequest.result.html,
+                  gistUrl: null
+                });
+              }
+              else {
+                resolve(null);
+              }
+            } else {
+              resolve(null);
+            }
           };
           getRequest.onerror = function() {
             resolve(null);
@@ -449,7 +470,7 @@
       });
     }
 
-    function saveCustomHTML(html) {
+    function saveCustomHTML(html, gistUrl) {
       // Use hostname as the unique key for the app
       const appKey = window.location.hostname;
       
@@ -457,7 +478,12 @@
         return new Promise(function(resolve, reject) {
           const transaction = db.transaction('app', 'readwrite');
           const store = transaction.objectStore('app');
-          const putRequest = store.put({ id: appKey, html: html });
+          // Store both HTML and gistUrl
+          const putRequest = store.put({ 
+            id: appKey, 
+            html: html,
+            gistUrl: gistUrl || null
+          });
           putRequest.onsuccess = function() {
             resolve();
           };
@@ -466,6 +492,90 @@
           };
         });
       });
+    }
+
+    // Function to get gistUrl from multiple storage mechanisms
+    function getPersistedGistUrl() {
+      return new Promise(function(resolve) {
+        // First try IndexedDB
+        getCustomHTML()
+          .then(function(data) {
+            if (data && data.gistUrl) {
+              resolve(data.gistUrl);
+              return;
+            }
+            
+            // Then try localStorage
+            try {
+              const localStorageGistUrl = localStorage.getItem('savedGistUrl');
+              if (localStorageGistUrl) {
+                resolve(localStorageGistUrl);
+                return;
+              }
+            } catch (e) {
+              console.warn('Failed to access localStorage:', e);
+            }
+            
+            // Then try sessionStorage
+            try {
+              const sessionStorageGistUrl = sessionStorage.getItem('savedGistUrl');
+              if (sessionStorageGistUrl) {
+                resolve(sessionStorageGistUrl);
+                return;
+              }
+            } catch (e) {
+              console.warn('Failed to access sessionStorage:', e);
+            }
+            
+            // Finally try cookies
+            try {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('gistUrlCookie=')) {
+                  const cookieGistUrl = decodeURIComponent(cookie.substring('gistUrlCookie='.length));
+                  resolve(cookieGistUrl);
+                  return;
+                }
+              }
+            } catch (e) {
+              console.warn('Failed to parse cookies:', e);
+            }
+            
+            // If we get here, we couldn't find a gistUrl
+            resolve(null);
+          })
+          .catch(function(error) {
+            console.error('Error in getPersistedGistUrl:', error);
+            resolve(null);
+          });
+      });
+    }
+
+    // Function to save gistUrl to all available storage mechanisms
+    function persistGistUrl(gistUrl) {
+      if (!gistUrl) return;
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('savedGistUrl', gistUrl);
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e);
+      }
+      
+      // Save to sessionStorage
+      try {
+        sessionStorage.setItem('savedGistUrl', gistUrl);
+      } catch (e) {
+        console.warn('Failed to save to sessionStorage:', e);
+      }
+      
+      // Save to cookies (for iOS PWA compatibility)
+      try {
+        document.cookie = `gistUrlCookie=${encodeURIComponent(gistUrl)};path=/;max-age=31536000`;
+      } catch (e) {
+        console.warn('Failed to save to cookies:', e);
+      }
     }
 
     // --- Function to parse URL parameters ---
@@ -648,6 +758,9 @@
             
             // Display gist information
             displayGistInfo(data, files[0].filename);
+            
+            // Save the gistUrl to all storage mechanisms
+            persistGistUrl(gistUrlInput.value.trim());
           })
           .catch(error => {
             console.error("Error fetching gist:", error);
@@ -670,36 +783,80 @@
       // Wait for both service worker registration and data retrieval
       Promise.all([serviceWorkerPromise, getCustomHTML()])
         .then(function(results) {
-          const savedHTML = results[1];
+          const savedData = results[1]; // This contains {html, gistUrl}
           
           // Hide loading UI
           document.getElementById('loadingUI').style.display = 'none';
           
-          if (savedHTML && !isEditMode) {
-            // Display the custom app view - hide GitHub banner
+          // Get URL parameters
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlGistUrl = urlParams.get('gistUrl');
+          const isPwaSource = urlParams.get('source') === 'pwa';
+          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+          
+          // CASE 1: If we have a gistUrl in URL and we're not in a PWA context, 
+          // always show the editor UI first (this is the shared link case)
+          if (urlGistUrl && !isPwaSource && !isStandalone) {
+            // Show the editor UI
+            document.getElementById('editorUI').style.display = 'block';
+            document.getElementById('gistUrl').value = urlGistUrl;
+            fetchGistContent(urlGistUrl);
+            
+            // Save this to all mechanisms for future use
+            persistGistUrl(urlGistUrl);
+            
+            return; // Exit early
+          }
+          
+          // CASE 2: If we have saved HTML and we're not in edit mode, display the app
+          if (savedData && savedData.html && !isEditMode) {
+            // Display the custom app view
             document.getElementById('editorUI').style.display = 'none';
             document.getElementById('appView').style.display = 'block';
             document.title = "Your Custom App";
-            document.getElementById('appFrame').srcdoc = savedHTML;
+            document.getElementById('appFrame').srcdoc = savedData.html;
+            
+            // Also save the gistUrl to all storage mechanisms if available
+            if (savedData.gistUrl) {
+              persistGistUrl(savedData.gistUrl);
+            }
           } else {
-            // Show the editor UI
+            // CASE 3: Show the editor UI for all other cases
             document.getElementById('editorUI').style.display = 'block';
             
             // If there's saved HTML, populate the editor
-            if (savedHTML) {
-              document.getElementById('htmlInput').value = savedHTML;
-              updateButtonVisibility(true);
+            if (savedData && savedData.html) {
+              document.getElementById('htmlInput').value = savedData.html;
             }
-
-            // Check for gistUrl query parameter (from URL or localStorage)
-            const gistUrlParam = getQueryParamOrSaved('gistUrl');
-            if (gistUrlParam) {
-              // Set the gistUrl input field value
-              document.getElementById('gistUrl').value = gistUrlParam;
+            
+            // Handle gistUrl in this order of priority:
+            // 1. URL parameter
+            // 2. Saved in IndexedDB
+            // 3. Other storage mechanisms via getPersistedGistUrl()
+            
+            if (urlGistUrl) {
+              // First priority: URL parameter
+              document.getElementById('gistUrl').value = urlGistUrl;
+              fetchGistContent(urlGistUrl);
               
-              // Automatically fetch the gist content
-              fetchGistContent(gistUrlParam);
+              // Save this to all mechanisms for future use
+              persistGistUrl(urlGistUrl);
+            } else if (savedData && savedData.gistUrl) {
+              // Second priority: IndexedDB
+              document.getElementById('gistUrl').value = savedData.gistUrl;
+              fetchGistContent(savedData.gistUrl);
+            } else {
+              // Third priority: Check other storage mechanisms
+              getPersistedGistUrl().then(function(persistedGistUrl) {
+                if (persistedGistUrl) {
+                  document.getElementById('gistUrl').value = persistedGistUrl;
+                  fetchGistContent(persistedGistUrl);
+                }
+              });
             }
+            
+            // Update button visibility based on content
+            updateButtonVisibility(document.getElementById('htmlInput').value.trim().length > 0);
           }
         });
 
@@ -743,24 +900,39 @@
         }
       });
 
-      // "View App": Save to IndexedDB then navigate to the root of the current hostname
+      // "View App": Save to IndexedDB then navigate to the root
       startBtn.addEventListener('click', function() {
         const htmlCode = htmlInput.value;
         
-        // Also save the current gistUrl to ensure it persists
+        // Get the current gistUrl
         const currentGistUrl = gistUrlInput.value.trim();
-        if (currentGistUrl) {
-          try {
-            localStorage.setItem('savedGistUrl', currentGistUrl);
-            console.log('Saved current gistUrl before app launch:', currentGistUrl);
-          } catch (error) {
-            console.error('Failed to save gistUrl before launch:', error);
-          }
-        }
         
-        saveCustomHTML(htmlCode).then(function() {
-          // Navigate to the root URL of the current hostname
-          window.location.href = window.location.origin + '/';
+        // Save gistUrl to all available storage mechanisms
+        persistGistUrl(currentGistUrl);
+        
+        // For iOS in standalone mode (PWA), we need a different approach
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                            window.navigator.standalone || 
+                            document.referrer.includes('android-app://');
+        
+        // Save both HTML and gistUrl to IndexedDB
+        saveCustomHTML(htmlCode, currentGistUrl).then(function() {
+          if (isStandalone) {
+            // In standalone mode (PWA) on iOS, we'll show the app directly in the current view
+            // instead of redirecting which can cause issues
+            document.getElementById('editorUI').style.display = 'none';
+            document.getElementById('appView').style.display = 'block';
+            document.title = "Your Custom App";
+            document.getElementById('appFrame').srcdoc = htmlCode;
+            
+            // Update the URL to reflect we're in app view, but without forcing a page reload
+            window.history.replaceState({}, '', window.location.origin + '/');
+            
+            console.log('Switched to app view directly without navigation');
+          } else {
+            // For non-PWA contexts, use standard navigation
+            window.location.href = window.location.origin + '/';
+          }
         });
       });
 
@@ -776,17 +948,16 @@
         fetchStatus.textContent = '';
       });
       
-      // "Share App": Copy shareable URL to clipboard
+                // "Share App": Copy shareable URL to clipboard
       shareBtn.addEventListener('click', function() {
         const gistUrl = gistUrlInput.value.trim();
         if (gistUrl) {
-          // Also ensure we save this gistUrl to localStorage
-          try {
-            localStorage.setItem('savedGistUrl', gistUrl);
-            console.log('Saved gistUrl when sharing:', gistUrl);
-          } catch (error) {
-            console.error('Failed to save gistUrl when sharing:', error);
-          }
+          // Save to all storage mechanisms
+          persistGistUrl(gistUrl);
+          
+          // Make sure it's also in the IndexedDB with the current HTML
+          const htmlCode = htmlInput.value;
+          saveCustomHTML(htmlCode, gistUrl);
           
           // Create the shareable URL with the gistUrl parameter
           const currentUrl = window.location.href.split('?')[0]; // Remove any existing query parameters
@@ -805,6 +976,41 @@
               console.error('Could not copy text: ', err);
               alert('Failed to copy link to clipboard. Please try again.');
             });
+        }
+      });
+      
+      // Special handling for iOS in standalone mode (PWA)
+      window.addEventListener('load', function() {
+        // Check if we're in standalone mode and on the edit page with a source=pwa parameter
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPwaSource = urlParams.get('source') === 'pwa';
+        
+        if (isStandalone && isPwaSource && window.location.pathname.includes('/edit')) {
+          console.log('PWA in edit mode - checking for gistUrl');
+          
+          // Check if we already have a gistUrl in the URL
+          const urlGistUrl = urlParams.get('gistUrl');
+          
+          if (!urlGistUrl) {
+            // No gistUrl in URL, try to restore from storage
+            getPersistedGistUrl().then(function(persistedGistUrl) {
+              if (persistedGistUrl) {
+                console.log('Found persisted gistUrl:', persistedGistUrl);
+                
+                // Set the input field
+                document.getElementById('gistUrl').value = persistedGistUrl;
+                
+                // Fetch the content
+                fetchGistContent(persistedGistUrl);
+                
+                // Update the URL without reloading (important for iOS)
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('gistUrl', persistedGistUrl);
+                window.history.replaceState({}, '', newUrl);
+              }
+            });
+          }
         }
       });
     });
