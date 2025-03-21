@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Personal Web App Host</title>
   <style>
     :root {
@@ -34,6 +36,7 @@
       min-height: 100vh;
       padding: 0;
       margin: 0;
+      -webkit-text-size-adjust: 100%;
     }
 
     .container {
@@ -106,7 +109,7 @@
       border: 2px solid var(--light-gray);
       border-radius: var(--border-radius);
       font-family: 'Courier New', Courier, monospace;
-      font-size: 14px;
+      font-size: 16px;
       line-height: 1.5;
       resize: vertical;
       transition: var(--transition);
@@ -117,6 +120,27 @@
       outline: none;
       border-color: var(--accent-color);
       box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.25);
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      border: 2px solid var(--light-gray);
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      width: 100%;
+      transition: var(--transition);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.25);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 5px;
     }
 
     .button-container {
@@ -160,6 +184,31 @@
     #deleteBtn:hover {
       background-color: #d63f60;
       transform: translateY(-2px);
+    }
+    
+    #shareBtn {
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    #shareBtn:hover {
+      background-color: #3ab8df;
+      transform: translateY(-2px);
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
     }
 
     .banner {
@@ -210,7 +259,7 @@
       }
 
       .editor-card {
-        padding: 20px;
+        padding: 16px;
       }
       
       /* Adjust list padding for mobile */
@@ -220,9 +269,21 @@
 
       .button-container {
         flex-direction: column;
+        gap: 10px;
       }
 
       button {
+        width: 100%;
+        padding: 12px 16px;
+      }
+      
+      /* Improve input group layout on mobile */
+      .input-group {
+        flex-direction: column;
+      }
+      
+      /* Make fetch button full width on mobile */
+      #fetchBtn {
         width: 100%;
       }
     }
@@ -243,23 +304,40 @@
         <ol>
           <li>Use "<a target="_blank" href="https://www.google.com/search?q=Add+to+Home+screen+iOS+and+Android">Add to Homescreen</a>." to add PWAH to your device.</li>
           <li>Open PWAH from the newly created app icon.</li>
-          <li>Paste your HTML and click "Launch App"</li>
+          <li>Paste your HTML or fetch a Gist and click "Launch App."</li>
         </ol>
         <div style="margin-bottom: 20px;">
           <label for="gistUrl" class="editor-label"><a target="_blank" href="https://gist.github.com/">GitHub Gist</a> URL (optional)</label>
-          <div style="display: flex; gap: 10px;">
-            <input type="text" id="gistUrl" placeholder="Paste Gist URL here" style="flex: 1; padding: 10px; border: 2px solid var(--light-gray); border-radius: var(--border-radius); transition: var(--transition);">
-            <button id="fetchBtn" style="flex-shrink: 0; background-color: var(--accent-color); color: white; padding: 0 20px;">Fetch</button>
+          <div class="input-group">
+            <input type="text" id="gistUrl" placeholder="Paste Gist URL here">
+            <button id="fetchBtn" style="background-color: var(--accent-color); color: white;">Fetch</button>
           </div>
           <p id="fetchStatus" style="margin-top: 5px; color: #666; font-size: 14px;"></p>
         </div>
+        
+        <!-- Gist info container -->
+        <div id="gistInfoContainer" style="margin-bottom: 20px; display: none; background-color: var(--light-gray); border-radius: var(--border-radius); padding: 15px;">
+          <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <img id="authorAvatar" src="" alt="Author" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+            <div>
+              <h3 id="gistTitle" style="margin: 0 0 5px 0; font-size: 18px; color: var(--primary-color);"></h3>
+              <p id="gistAuthor" style="margin: 0; font-size: 14px; color: var(--secondary-color);"></p>
+            </div>
+          </div>
+          <p id="gistDescription" style="margin: 10px 0 0 0; font-size: 14px; color: var(--text-color);"></p>
+        </div>
+        
         <label for="htmlInput" class="editor-label">HTML</label>
         <textarea id="htmlInput" placeholder="Place the HTML code for your app here."></textarea>
 
         <div class="button-container">
           <button id="startBtn" style="display: none;">Launch App</button>
           <button id="deleteBtn" style="display: none;">Clear Code</button>
+          <button id="shareBtn" style="display: none;">Share App</button>
         </div>
+        
+        <!-- Toast notification for copy success -->
+        <div id="toast" class="toast">Link copied to clipboard!</div>
       </div>
     </div>
   </div>
@@ -277,6 +355,62 @@
   </div>
 
   <script>
+    // --- Query Parameter Persistence ---
+    function saveQueryParamsToLocalStorage() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gistUrl = urlParams.get('gistUrl');
+      
+      // If there's a gistUrl in the query parameters, save it to localStorage
+      if (gistUrl) {
+        try {
+          localStorage.setItem('savedGistUrl', gistUrl);
+          console.log('Saved gistUrl to localStorage:', gistUrl);
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error);
+        }
+      } else {
+        console.log('No gistUrl parameter found in URL');
+      }
+    }
+    
+    function getQueryParamOrSaved(name) {
+      // First try to get from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramValue = urlParams.get(name);
+      
+      // If parameter exists in URL, return it
+      if (paramValue) {
+        console.log(`Found ${name} in URL:`, paramValue);
+        return paramValue;
+      }
+      
+      // Otherwise, try to get from localStorage
+      if (name === 'gistUrl') {
+        try {
+          const savedValue = localStorage.getItem('savedGistUrl');
+          console.log(`Retrieved ${name} from localStorage:`, savedValue);
+          return savedValue;
+        } catch (error) {
+          console.error('Failed to retrieve from localStorage:', error);
+        }
+      }
+      
+      console.log(`No ${name} found in URL or localStorage`);
+      return null;
+    }
+    
+    // Try to access localStorage to check if it's available
+    try {
+      localStorage.setItem('testStorage', 'test');
+      localStorage.removeItem('testStorage');
+      console.log('localStorage is available');
+    } catch (error) {
+      console.error('localStorage is not available:', error);
+    }
+    
+    // Save query parameters as soon as the script runs
+    saveQueryParamsToLocalStorage();
+    
     // --- IndexedDB Helpers ---
     function openDatabase() {
       return new Promise(function(resolve, reject) {
@@ -334,6 +468,31 @@
       });
     }
 
+    // --- Function to parse URL parameters ---
+    function getQueryParam(name) {
+      // This legacy function is kept for backward compatibility
+      // but we'll use getQueryParamOrSaved instead for new code
+      return getQueryParamOrSaved(name);
+    }
+    
+    // --- Function to sanitize Gist URL from script tags or other formats ---
+    function sanitizeGistUrl(url) {
+      // Check if it's a script tag
+      const scriptTagRegex = /<script\s+src="(https:\/\/gist\.github\.com\/[^"]+\.js)"/i;
+      const scriptMatch = url.match(scriptTagRegex);
+      if (scriptMatch && scriptMatch[1]) {
+        // Convert from JS URL to web URL
+        return scriptMatch[1].replace(/\.js$/, '');
+      }
+      
+      // Check if it's a JS direct URL
+      if (url.endsWith('.js') && url.includes('gist.github.com')) {
+        return url.replace(/\.js$/, '');
+      }
+      
+      return url;
+    }
+
     // --- Request Persistent Storage ---
     if (navigator.storage && navigator.storage.persist) {
       navigator.storage.persist().then(function(granted) {
@@ -343,68 +502,102 @@
 
     // --- App Initialization ---
     document.addEventListener('DOMContentLoaded', function() {
+      // Try to save query parameters again when DOM is fully loaded
+      saveQueryParamsToLocalStorage();
+      
       // Show loading indicator initially
       document.getElementById('loadingUI').style.display = 'flex';
       document.getElementById('editorUI').style.display = 'none';
       document.getElementById('appView').style.display = 'none';
       
-      // Check if we're in edit mode (if "edit" is in the URL)
-      const isEditMode = window.location.pathname.includes('/edit');
-      
-      // Register the service worker first
-      let serviceWorkerPromise = Promise.resolve();
-      if ('serviceWorker' in navigator) {
-        serviceWorkerPromise = navigator.serviceWorker.register('sw.js')
-          .then(function(registration) {
-            console.log('Service Worker registered with scope:', registration.scope);
-          })
-          .catch(function(error) {
-            console.error('Service Worker registration failed:', error);
-          });
-      }
-
-      // Wait for both service worker registration and data retrieval
-      Promise.all([serviceWorkerPromise, getCustomHTML()])
-        .then(function(results) {
-          const savedHTML = results[1];
-          
-          // Hide loading UI
-          document.getElementById('loadingUI').style.display = 'none';
-          
-          if (savedHTML && !isEditMode) {
-            // Display the custom app view - hide GitHub banner
-            document.getElementById('editorUI').style.display = 'none';
-            document.getElementById('appView').style.display = 'block';
-            document.title = "Your Custom App";
-            document.getElementById('appFrame').srcdoc = savedHTML;
-          } else {
-            // Show the editor UI
-            document.getElementById('editorUI').style.display = 'block';
-            
-            // If there's saved HTML, populate the editor
-            if (savedHTML) {
-              document.getElementById('htmlInput').value = savedHTML;
-              updateButtonVisibility(true);
-            }
-          }
-        });
-
+      // Get DOM elements
       const htmlInput = document.getElementById('htmlInput');
       const startBtn = document.getElementById('startBtn');
       const deleteBtn = document.getElementById('deleteBtn');
+      const shareBtn = document.getElementById('shareBtn');
       const gistUrlInput = document.getElementById('gistUrl');
       const fetchBtn = document.getElementById('fetchBtn');
       const fetchStatus = document.getElementById('fetchStatus');
-
+      const toast = document.getElementById('toast');
+      
+      // Gist info elements
+      const gistInfoContainer = document.getElementById('gistInfoContainer');
+      const authorAvatar = document.getElementById('authorAvatar');
+      const gistTitle = document.getElementById('gistTitle');
+      const gistAuthor = document.getElementById('gistAuthor');
+      const gistDescription = document.getElementById('gistDescription');
+      
+      // Check if we're in edit mode (if "edit" is in the URL)
+      const isEditMode = window.location.pathname.includes('/edit');
+      
       // Function to show/hide buttons based on whether there's code
       function updateButtonVisibility(hasContent) {
         startBtn.style.display = hasContent ? 'block' : 'none';
         deleteBtn.style.display = hasContent ? 'block' : 'none';
+        
+        // Show share button only if both gist URL and HTML content exist
+        const hasGistUrl = gistUrlInput.value.trim().length > 0;
+        shareBtn.style.display = (hasContent && hasGistUrl) ? 'block' : 'none';
       }
-
+      
+      // Function to display gist information
+      function displayGistInfo(gistData, filename) {
+        // Set the author information
+        authorAvatar.src = gistData.owner.avatar_url;
+        gistAuthor.textContent = `Created by ${gistData.owner.login}`;
+        
+        // Set the gist title (use filename if description is empty)
+        if (gistData.description && gistData.description.trim() !== "") {
+          gistTitle.textContent = gistData.description;
+          gistDescription.textContent = `File: ${filename}`;
+        } else {
+          gistTitle.textContent = filename;
+          gistDescription.textContent = "No description provided";
+        }
+        
+        // Calculate time since creation
+        const createdDate = new Date(gistData.created_at);
+        const now = new Date();
+        const timeDiff = now - createdDate;
+        
+        // Format the time difference
+        let timeAgo;
+        const seconds = Math.floor(timeDiff / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        
+        if (days > 0) {
+          timeAgo = `${days} ${days === 1 ? 'day' : 'days'} ago`;
+        } else if (hours > 0) {
+          timeAgo = `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+        } else if (minutes > 0) {
+          timeAgo = `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+        } else {
+          timeAgo = `${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
+        }
+        
+        // Add time ago to author info
+        gistAuthor.textContent += ` • ${timeAgo}`;
+        
+        // Show the gist info container
+        gistInfoContainer.style.display = "block";
+      }
+      
       // Function to fetch content from GitHub Gist
       function fetchGistContent(url) {
         fetchStatus.textContent = "Fetching gist...";
+        
+        // Sanitize the URL if it's a script tag
+        const sanitizedUrl = sanitizeGistUrl(url);
+        if (sanitizedUrl !== url) {
+          // Update the input field with the sanitized URL
+          gistUrlInput.value = sanitizedUrl;
+          url = sanitizedUrl;
+        }
+        
+        // Hide the gist info container while fetching
+        gistInfoContainer.style.display = "none";
         
         // Extract the gist ID from URL
         let gistId = null;
@@ -449,12 +642,66 @@
               updateButtonVisibility(true);
               fetchStatus.textContent = "Warning: Content loaded but may not be valid HTML.";
             }
+            
+            // Update share button visibility since gist URL is now filled
+            updateButtonVisibility(htmlInput.value.trim().length > 0);
+            
+            // Display gist information
+            displayGistInfo(data, files[0].filename);
           })
           .catch(error => {
             console.error("Error fetching gist:", error);
             fetchStatus.textContent = `Error: ${error.message || "Failed to fetch gist content"}`;
           });
       }
+      
+      // Register the service worker first
+      let serviceWorkerPromise = Promise.resolve();
+      if ('serviceWorker' in navigator) {
+        serviceWorkerPromise = navigator.serviceWorker.register('sw.js')
+          .then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(function(error) {
+            console.error('Service Worker registration failed:', error);
+          });
+      }
+
+      // Wait for both service worker registration and data retrieval
+      Promise.all([serviceWorkerPromise, getCustomHTML()])
+        .then(function(results) {
+          const savedHTML = results[1];
+          
+          // Hide loading UI
+          document.getElementById('loadingUI').style.display = 'none';
+          
+          if (savedHTML && !isEditMode) {
+            // Display the custom app view - hide GitHub banner
+            document.getElementById('editorUI').style.display = 'none';
+            document.getElementById('appView').style.display = 'block';
+            document.title = "Your Custom App";
+            document.getElementById('appFrame').srcdoc = savedHTML;
+          } else {
+            // Show the editor UI
+            document.getElementById('editorUI').style.display = 'block';
+            
+            // If there's saved HTML, populate the editor
+            if (savedHTML) {
+              document.getElementById('htmlInput').value = savedHTML;
+              updateButtonVisibility(true);
+            }
+
+            // Check for gistUrl query parameter (from URL or localStorage)
+            const gistUrlParam = getQueryParamOrSaved('gistUrl');
+            if (gistUrlParam) {
+              // Set the gistUrl input field value
+              document.getElementById('gistUrl').value = gistUrlParam;
+              
+              // Automatically fetch the gist content
+              fetchGistContent(gistUrlParam);
+            }
+          }
+        });
 
       // Handle fetch button click
       fetchBtn.addEventListener('click', function() {
@@ -463,6 +710,8 @@
           fetchGistContent(url);
         } else {
           fetchStatus.textContent = "Please enter a valid GitHub Gist URL";
+          // Hide gist info if URL is empty
+          gistInfoContainer.style.display = 'none';
         }
       });
 
@@ -471,10 +720,44 @@
         const hasContent = htmlInput.value.trim().length > 0;
         updateButtonVisibility(hasContent);
       });
+      
+      // Monitor gistUrl input for content to update share button visibility
+      gistUrlInput.addEventListener('input', function() {
+        const hasContent = htmlInput.value.trim().length > 0;
+        updateButtonVisibility(hasContent);
+        
+        // Hide gist info when URL is changed or cleared
+        if (gistUrlInput.value.trim() === '') {
+          gistInfoContainer.style.display = 'none';
+        }
+      });
+      
+      // Add blur event to sanitize Gist URL when the input loses focus
+      gistUrlInput.addEventListener('blur', function() {
+        const url = gistUrlInput.value.trim();
+        if (url) {
+          const sanitizedUrl = sanitizeGistUrl(url);
+          if (sanitizedUrl !== url) {
+            gistUrlInput.value = sanitizedUrl;
+          }
+        }
+      });
 
       // "View App": Save to IndexedDB then navigate to the root of the current hostname
       startBtn.addEventListener('click', function() {
         const htmlCode = htmlInput.value;
+        
+        // Also save the current gistUrl to ensure it persists
+        const currentGistUrl = gistUrlInput.value.trim();
+        if (currentGistUrl) {
+          try {
+            localStorage.setItem('savedGistUrl', currentGistUrl);
+            console.log('Saved current gistUrl before app launch:', currentGistUrl);
+          } catch (error) {
+            console.error('Failed to save gistUrl before launch:', error);
+          }
+        }
+        
         saveCustomHTML(htmlCode).then(function() {
           // Navigate to the root URL of the current hostname
           window.location.href = window.location.origin + '/';
@@ -485,6 +768,44 @@
       deleteBtn.addEventListener('click', function() {
         htmlInput.value = '';
         updateButtonVisibility(false);
+        
+        // Hide gist info container but keep the URL
+        gistInfoContainer.style.display = 'none';
+        
+        // Clear the fetch status text
+        fetchStatus.textContent = '';
+      });
+      
+      // "Share App": Copy shareable URL to clipboard
+      shareBtn.addEventListener('click', function() {
+        const gistUrl = gistUrlInput.value.trim();
+        if (gistUrl) {
+          // Also ensure we save this gistUrl to localStorage
+          try {
+            localStorage.setItem('savedGistUrl', gistUrl);
+            console.log('Saved gistUrl when sharing:', gistUrl);
+          } catch (error) {
+            console.error('Failed to save gistUrl when sharing:', error);
+          }
+          
+          // Create the shareable URL with the gistUrl parameter
+          const currentUrl = window.location.href.split('?')[0]; // Remove any existing query parameters
+          const shareableUrl = `${currentUrl}?gistUrl=${encodeURIComponent(gistUrl)}`;
+          
+          // Copy to clipboard
+          navigator.clipboard.writeText(shareableUrl)
+            .then(function() {
+              // Show success toast
+              toast.style.opacity = '1';
+              setTimeout(function() {
+                toast.style.opacity = '0';
+              }, 3000);
+            })
+            .catch(function(err) {
+              console.error('Could not copy text: ', err);
+              alert('Failed to copy link to clipboard. Please try again.');
+            });
+        }
       });
     });
   </script>

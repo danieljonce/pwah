@@ -1,7 +1,7 @@
 {
-  "short_name": "HTMLPWA",
-  "name": "HTML PWA Creator",
-  "start_url": "/",
+  "short_name": "PWAH",
+  "name": "Personal",
+  "start_url": "/?source=pwa",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
