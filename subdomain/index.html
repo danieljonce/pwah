@@ -222,20 +222,25 @@
     <div class="container">
       <header>
         <h1>Personal Web App Host</h1>
-        <h2>Put a custom app on your phone in 10 seconds.</h2>
-        <p><a href="https://github.com/danieljonce/pwa" target="_blank">Learn more about this project</a></p>
+        <h2>The quickest way to put an app on your phone.</h2>
+        <p><a href="https://github.com/danieljonce/pwah" target="_blank">Learn more about this project</a></p>
       </header>
       
       <div class="editor-card">
-        <p>
-          <ol>
-            <li>Use your browser's "Add to Homescreen" feature to add PWAH to your device.</li>
-            <li>Close your browser and open PWAH from the newly created app icon.</li>
-            <li>You'll see this page again. Paste your HTML and click "Launch App"</li>
-          </ol>
-        </p>
-        <hr />
-        <label for="htmlInput" class="editor-label">HTML</label>
+        <ol>
+          <li>Use your browser's "Add to Homescreen" feature to add PWAH to your device.</li>
+          <li>Close your browser and open PWAH from the newly created app icon.</li>
+          <li>You'll see this page again. Paste your HTML and click "Launch App"</li>
+        </ol>
+        <div style="margin-bottom: 20px;">
+          <label for="gistUrl" class="editor-label">GitHub Gist URL (optional)</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="gistUrl" placeholder="Paste Gist URL here" style="flex: 1; padding: 10px; border: 2px solid var(--light-gray); border-radius: var(--border-radius); transition: var(--transition);">
+            <button id="fetchBtn" style="flex-shrink: 0; background-color: var(--accent-color); color: white; padding: 0 20px;">Fetch</button>
+          </div>
+          <p id="fetchStatus" style="margin-top: 5px; color: #666; font-size: 14px;"></p>
+        </div>
+        <label for="htmlInput" class="editor-label">HTML Code</label>
         <textarea id="htmlInput" placeholder="Enter your HTML code here"></textarea>
         
         <div class="button-container">
@@ -374,12 +379,79 @@
       const htmlInput = document.getElementById('htmlInput');
       const startBtn = document.getElementById('startBtn');
       const deleteBtn = document.getElementById('deleteBtn');
+      const gistUrlInput = document.getElementById('gistUrl');
+      const fetchBtn = document.getElementById('fetchBtn');
+      const fetchStatus = document.getElementById('fetchStatus');
 
       // Function to show/hide buttons based on whether there's code
       function updateButtonVisibility(hasContent) {
         startBtn.style.display = hasContent ? 'block' : 'none';
         deleteBtn.style.display = hasContent ? 'block' : 'none';
       }
+
+      // Function to fetch content from GitHub Gist
+      function fetchGistContent(url) {
+        fetchStatus.textContent = "Fetching gist...";
+        
+        // Extract the gist ID from URL
+        let gistId = null;
+        const gistRegex = /gist\.github\.com\/(?:[^/]+\/)?([a-f0-9]+)/i;
+        const match = url.match(gistRegex);
+        
+        if (match && match[1]) {
+          gistId = match[1];
+        } else {
+          fetchStatus.textContent = "Error: Invalid Gist URL format";
+          return;
+        }
+        
+        // Fetch the gist using the GitHub API
+        fetch(`https://api.github.com/gists/${gistId}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Get the first file from the gist
+            const files = Object.values(data.files);
+            if (files.length === 0) {
+              throw new Error("No files found in this gist");
+            }
+            
+            const fileContent = files[0].content;
+            
+            // Check if the content looks like HTML
+            const isHtml = fileContent.trim().toLowerCase().startsWith('<!doctype html>') || 
+                          fileContent.trim().toLowerCase().startsWith('<html') ||
+                          (fileContent.includes('<body') && fileContent.includes('</body>'));
+            
+            if (isHtml) {
+              htmlInput.value = fileContent;
+              updateButtonVisibility(true);
+              fetchStatus.textContent = "HTML content loaded successfully!";
+            } else {
+              htmlInput.value = fileContent;
+              updateButtonVisibility(true);
+              fetchStatus.textContent = "Warning: Content loaded but may not be valid HTML.";
+            }
+          })
+          .catch(error => {
+            console.error("Error fetching gist:", error);
+            fetchStatus.textContent = `Error: ${error.message || "Failed to fetch gist content"}`;
+          });
+      }
+
+      // Handle fetch button click
+      fetchBtn.addEventListener('click', function() {
+        const url = gistUrlInput.value.trim();
+        if (url) {
+          fetchGistContent(url);
+        } else {
+          fetchStatus.textContent = "Please enter a valid GitHub Gist URL";
+        }
+      });
 
       // Monitor textarea for content to show/hide buttons
       htmlInput.addEventListener('input', function() {
