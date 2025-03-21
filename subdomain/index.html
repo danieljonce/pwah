@@ -83,6 +83,16 @@
       padding: 30px;
       margin-bottom: 30px;
     }
+    
+    /* Add these new styles for ordered and unordered lists */
+    ol, ul {
+      padding-left: 24px;
+      margin-bottom: 20px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
 
     .editor-label {
       display: block;
@@ -204,6 +214,11 @@
       .editor-card {
         padding: 20px;
       }
+      
+      /* Adjust list padding for mobile */
+      ol, ul {
+        padding-left: 20px;
+      }
 
       .button-container {
         flex-direction: column;
@@ -222,15 +237,15 @@
     <div class="container">
       <header>
         <h1>Personal Web App Host</h1>
-        <h2>The quickest way to put an app on your phone.</h2>
+        <h2>Put a custom, local, app on your phone in 10 seconds.</h2>
         <p><a href="https://github.com/danieljonce/pwah" target="_blank">Learn more about this project</a></p>
       </header>
       
       <div class="editor-card">
         <ol>
-          <li>Use your browser's "Add to Homescreen" feature to add PWAH to your device.</li>
-          <li>Close your browser and open PWAH from the newly created app icon.</li>
-          <li>You'll see this page again. Paste your HTML and click "Launch App"</li>
+          <li>Use "<a target="_blank" href="https://www.google.com/search?q=Add+to+Home+screen+iOS+and+Android">Add to Homescreen</a>." to add PWAH to your device.</li>
+          <li>Open PWAH from the newly created app icon.</li>
+          <li>Paste your HTML and click "Launch App"</li>
         </ol>
         <div style="margin-bottom: 20px;">
           <label for="gistUrl" class="editor-label">GitHub Gist URL (optional)</label>
