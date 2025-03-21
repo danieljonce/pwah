@@ -67,13 +67,11 @@
 
     a {
       color: var(--primary-color);
-      text-decoration: none;
       transition: var(--transition);
     }
 
     a:hover {
       color: var(--secondary-color);
-      text-decoration: underline;
     }
 
     .editor-card {
@@ -238,7 +236,7 @@
       <header>
         <h1>Personal Web App Host</h1>
         <h2>Put a custom, local, app on your phone in 10 seconds.</h2>
-        <p><a href="https://github.com/danieljonce/pwah" target="_blank">Learn more about this project</a></p>
+        <p><a href="https://github.com/danieljonce/pwah" target="_blank">Learn more...</a></p>
       </header>
       
       <div class="editor-card">
@@ -248,7 +246,7 @@
           <li>Paste your HTML and click "Launch App"</li>
         </ol>
         <div style="margin-bottom: 20px;">
-          <label for="gistUrl" class="editor-label">GitHub Gist URL (optional)</label>
+          <label for="gistUrl" class="editor-label"><a target="_blank" href="https://gist.github.com/">GitHub Gist</a> URL (optional)</label>
           <div style="display: flex; gap: 10px;">
             <input type="text" id="gistUrl" placeholder="Paste Gist URL here" style="flex: 1; padding: 10px; border: 2px solid var(--light-gray); border-radius: var(--border-radius); transition: var(--transition);">
             <button id="fetchBtn" style="flex-shrink: 0; background-color: var(--accent-color); color: white; padding: 0 20px;">Fetch</button>
