@@ -1,0 +1,291 @@
+/* Reset and base styles */
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #34495e;
+  --accent-color: #3498db;
+  --light-gray: #f5f7fa;
+  --text-color: #333;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  --transition-speed: 0.3s;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+h1, h2 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color var(--transition-speed);
+  box-shadow: var(--box-shadow);
+}
+
+button:hover {
+  background-color: var(--secondary-color);
+}
+
+button:focus {
+  outline: 3px solid var(--accent-color);
+}
+
+/* Editor UI styles */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.editor-card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 30px;
+  box-shadow: var(--box-shadow);
+}
+
+.editor-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--primary-color);
+}
+
+textarea {
+  width: 100%;
+  height: 300px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  font-family: monospace;
+  resize: vertical;
+  transition: border-color var(--transition-speed);
+  font-size: 14px;
+}
+
+textarea:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+#gistUrl {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  transition: border-color var(--transition-speed);
+}
+
+#gistUrl:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+/* App iframe */
+#appFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Loading UI */
+#loadingUI {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--light-gray);
+  border-top: 5px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background-color: rgba(44, 62, 80, 0.95);
+  color: white;
+  padding: 15px 25px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 15px;
+  }
+  
+  .editor-card {
+    padding: 20px;
+  }
+  
+  textarea {
+    height: 250px;
+  }
+  
+  .input-group {
+    flex-direction: column;
+  }
+  
+  .button-container {
+    flex-direction: column;
+  }
+  
+  button {
+    width: 100%;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+  
+  .toast {
+    transition: none;
+  }
+  
+  button, a, textarea, #gistUrl {
+    transition: none;
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: more) {
+  :root {
+    --primary-color: #000;
+    --secondary-color: #222;
+    --accent-color: #0056b3;
+    --text-color: #000;
+  }
+  
+  a, button {
+    text-decoration: underline;
+  }
+}
+
+/* GitHub corner styles */
+.github-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--accent-color);
+  fill: var(--primary-color);
+  z-index: 100;
+}
+
+.github-corner:hover {
+  color: white;
+}
+
+.github-corner .octo-arm {
+  transform-origin: 130px 106px;
+}
+
+.github-corner:hover .octo-arm {
+  animation: octocat-wave 560ms ease-in-out;
+}
+
+@keyframes octocat-wave {
+  0%, 100% { transform: rotate(0); }
+  20%, 60% { transform: rotate(-25deg); }
+  40%, 80% { transform: rotate(10deg); }
+}
+
+@media (max-width: 768px) {
+  .github-corner {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .github-corner:hover .octo-arm {
+    animation: none;
+  }
+  
+  .github-corner .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+  }
+} 
