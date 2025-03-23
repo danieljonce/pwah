@@ -1,78 +1,33 @@
 // Register service worker for PWA support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
+    navigator.serviceWorker.register('sw.js')
+    .then(function(registration) {
+      console.log('Service Worker registered with scope:', registration.scope);
     })
-      .then(function(registration) {
-        console.log('Service Worker registered successfully with scope:', registration.scope);
-      })
-      .catch(function(error) {
-        console.error('Service Worker registration failed:', error);
-      });
+    .catch(function(error) {
+      console.error('Service Worker registration failed:', error);
+    });
   });
 }
 
-// --- Query Parameter Persistence ---
-function saveQueryParamsToLocalStorage() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const gistUrl = urlParams.get('gistUrl');
-  
-  // If there's a gistUrl in the query parameters, save it to localStorage
-  if (gistUrl) {
-    try {
-      localStorage.setItem('savedGistUrl', gistUrl);
-      console.log('Saved gistUrl to localStorage:', gistUrl);
-    } catch (error) {
-      console.error('Failed to save to localStorage:', error);
-    }
-  } else {
-    console.log('No gistUrl parameter found in URL');
-  }
-}
+// iOS detection helper
+const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                     window.navigator.standalone || 
+                     document.referrer.includes('android-app://');
 
-function getQueryParamOrSaved(name) {
-  // First try to get from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const paramValue = urlParams.get(name);
-  
-  // If parameter exists in URL, return it
-  if (paramValue) {
-    console.log(`Found ${name} in URL:`, paramValue);
-    return paramValue;
-  }
-  
-  // Otherwise, try to get from localStorage
-  if (name === 'gistUrl') {
-    try {
-      const savedValue = localStorage.getItem('savedGistUrl');
-      console.log(`Retrieved ${name} from localStorage:`, savedValue);
-      return savedValue;
-    } catch (error) {
-      console.error('Failed to retrieve from localStorage:', error);
-    }
-  }
-  
-  console.log(`No ${name} found in URL or localStorage`);
-  return null;
-}
-
-// Try to access localStorage to check if it's available
-try {
-  localStorage.setItem('testStorage', 'test');
-  localStorage.removeItem('testStorage');
-  console.log('localStorage is available');
-} catch (error) {
-  console.error('localStorage is not available:', error);
-}
-
-// Save query parameters as soon as the script runs
-saveQueryParamsToLocalStorage();
+console.log('[PWA] Environment detection:', {
+  iOS: iOS,
+  isSafari: isSafari,
+  isStandalone: isStandalone
+});
 
 // --- IndexedDB Helpers ---
 function openDatabase() {
   return new Promise(function(resolve, reject) {
-    const request = indexedDB.open('pwaGenerator', 2); // Increment version to trigger upgrade
+    const request = indexedDB.open('pwaGenerator', 2);
     request.onupgradeneeded = function(event) {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('app')) {
@@ -98,23 +53,18 @@ function getCustomHTML() {
       const store = transaction.objectStore('app');
       const getRequest = store.get(appKey);
       getRequest.onsuccess = function() {
-        // Return both HTML and gistUrl if available
         if (getRequest.result) {
-          // If result has both properties
           if (getRequest.result.html && 'gistUrl' in getRequest.result) {
             resolve({
               html: getRequest.result.html,
               gistUrl: getRequest.result.gistUrl
             });
-          } 
-          // For backward compatibility with old data format
-          else if (typeof getRequest.result.html === 'string') {
+          } else if (typeof getRequest.result.html === 'string') {
             resolve({
               html: getRequest.result.html,
               gistUrl: null
             });
-          }
-          else {
+          } else {
             resolve(null);
           }
         } else {
@@ -136,7 +86,6 @@ function saveCustomHTML(html, gistUrl) {
     return new Promise(function(resolve, reject) {
       const transaction = db.transaction('app', 'readwrite');
       const store = transaction.objectStore('app');
-      // Store both HTML and gistUrl
       const putRequest = store.put({ 
         id: appKey, 
         html: html,
@@ -152,127 +101,106 @@ function saveCustomHTML(html, gistUrl) {
   });
 }
 
-// Function to get gistUrl from multiple storage mechanisms
-function getPersistedGistUrl() {
-  return new Promise(function(resolve) {
-    // First try IndexedDB
-    getCustomHTML()
-      .then(function(data) {
-        if (data && data.gistUrl) {
-          resolve(data.gistUrl);
-          return;
-        }
-        
-        // Then try localStorage
-        try {
-          const localStorageGistUrl = localStorage.getItem('savedGistUrl');
-          if (localStorageGistUrl) {
-            resolve(localStorageGistUrl);
-            return;
-          }
-        } catch (e) {
-          console.warn('Failed to access localStorage:', e);
-        }
-        
-        // Then try sessionStorage
-        try {
-          const sessionStorageGistUrl = sessionStorage.getItem('savedGistUrl');
-          if (sessionStorageGistUrl) {
-            resolve(sessionStorageGistUrl);
-            return;
-          }
-        } catch (e) {
-          console.warn('Failed to access sessionStorage:', e);
-        }
-        
-        // Finally try cookies
-        try {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith('gistUrlCookie=')) {
-              const cookieGistUrl = decodeURIComponent(cookie.substring('gistUrlCookie='.length));
-              resolve(cookieGistUrl);
-              return;
-            }
-          }
-        } catch (e) {
-          console.warn('Failed to parse cookies:', e);
-        }
-        
-        // If we get here, we couldn't find a gistUrl
-        resolve(null);
-      })
-      .catch(function(error) {
-        console.error('Error in getPersistedGistUrl:', error);
-        resolve(null);
-      });
+// Function to save query parameters to localStorage
+function saveQueryParamsToLocalStorage() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('gistUrl')) {
+    console.log('[DEBUG] Saving gistUrl from URL params:', urlParams.get('gistUrl'));
+    localStorage.setItem('gistUrl', urlParams.get('gistUrl'));
+    return urlParams.get('gistUrl');
+  }
+  return null;
+}
+
+// Save query parameters on page load
+const urlGistParam = saveQueryParamsToLocalStorage();
+
+// iOS detection
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+// Add PWA install guidance for iOS - REMOVED this function's auto-popup functionality
+function addIOSInstallGuide() {
+  // Now returns immediately - we'll handle this via the button click instead
+  return;
+}
+
+// Show a more detailed iOS install popup
+function showIOSInstallPopup() {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.top = '50%';
+  popup.style.left = '50%';
+  popup.style.transform = 'translate(-50%, -50%)';
+  popup.style.background = 'white';
+  popup.style.borderRadius = '12px';
+  popup.style.boxShadow = '0 5px 30px rgba(0, 0, 0, 0.3)';
+  popup.style.padding = '20px';
+  popup.style.zIndex = '10000';
+  popup.style.maxWidth = '90%';
+  popup.style.width = '320px';
+  popup.style.textAlign = 'center';
+  
+  popup.innerHTML = `
+    <img src="icons/icon-192.png" style="width: 70px; height: 70px; margin: 0 auto 15px; display: block; border-radius: 15px;">
+    <h3 style="margin-top: 0; color: #333; font-size: 18px;">Install PWAH App</h3>
+    <p style="color: #666; margin-bottom: 20px;">Install this app on your home screen for the best experience.</p>
+    <div style="text-align: left; margin-bottom: 20px;">
+      <p style="margin: 5px 0; color: #333;"><b>1.</b> Tap the share icon <span style="font-size: 20px;">⎙</span></p>
+      <p style="margin: 5px 0; color: #333;"><b>2.</b> Select "Add to Home Screen"</p>
+      <p style="margin: 5px 0; color: #333;"><b>3.</b> Tap "Add" to confirm</p>
+    </div>
+    <button id="close-popup" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; width: 100%;">Got it</button>
+  `;
+  
+  document.body.appendChild(popup);
+  
+  // Animate in
+  popup.animate([
+    { transform: 'translate(-50%, -40%)', opacity: 0 },
+    { transform: 'translate(-50%, -50%)', opacity: 1 }
+  ], {
+    duration: 300,
+    easing: 'ease-out'
+  });
+  
+  // Add overlay
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.right = '0';
+  overlay.style.bottom = '0';
+  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  overlay.style.zIndex = '9999';
+  document.body.appendChild(overlay);
+  
+  // Handle close button
+  document.getElementById('close-popup').addEventListener('click', () => {
+    popup.animate([
+      { transform: 'translate(-50%, -50%)', opacity: 1 },
+      { transform: 'translate(-50%, -40%)', opacity: 0 }
+    ], {
+      duration: 200,
+      easing: 'ease-in'
+    }).onfinish = () => {
+      popup.remove();
+      overlay.remove();
+    };
   });
 }
 
-// Function to save gistUrl to all available storage mechanisms
-function persistGistUrl(gistUrl) {
-  if (!gistUrl) return;
-  
-  // Save to localStorage
-  try {
-    localStorage.setItem('savedGistUrl', gistUrl);
-  } catch (e) {
-    console.warn('Failed to save to localStorage:', e);
-  }
-  
-  // Save to sessionStorage
-  try {
-    sessionStorage.setItem('savedGistUrl', gistUrl);
-  } catch (e) {
-    console.warn('Failed to save to sessionStorage:', e);
-  }
-  
-  // Save to cookies (for iOS PWA compatibility)
-  try {
-    document.cookie = `gistUrlCookie=${encodeURIComponent(gistUrl)};path=/;max-age=31536000`;
-  } catch (e) {
-    console.warn('Failed to save to cookies:', e);
-  }
-}
-
-// --- Function to parse URL parameters ---
-function getQueryParam(name) {
-  // This legacy function is kept for backward compatibility
-  // but we'll use getQueryParamOrSaved instead for new code
-  return getQueryParamOrSaved(name);
-}
-
-// --- Function to sanitize Gist URL from script tags or other formats ---
-function sanitizeGistUrl(url) {
-  // Check if it's a script tag
-  const scriptTagRegex = /<script\s+src="(https:\/\/gist\.github\.com\/[^"]+\.js)"/i;
-  const scriptMatch = url.match(scriptTagRegex);
-  if (scriptMatch && scriptMatch[1]) {
-    // Convert from JS URL to web URL
-    return scriptMatch[1].replace(/\.js$/, '');
-  }
-  
-  // Check if it's a JS direct URL
-  if (url.endsWith('.js') && url.includes('gist.github.com')) {
-    return url.replace(/\.js$/, '');
-  }
-  
-  return url;
-}
-
-// --- Request Persistent Storage ---
-if (navigator.storage && navigator.storage.persist) {
-  navigator.storage.persist().then(function(granted) {
-    console.log("Persistent storage granted:", granted);
-  });
-}
+// Add iOS install guide when DOM is loaded - keeping this but the function now returns immediately
+document.addEventListener('DOMContentLoaded', addIOSInstallGuide);
 
 // --- App Initialization ---
 document.addEventListener('DOMContentLoaded', function() {
-  // Try to save query parameters again when DOM is fully loaded
-  saveQueryParamsToLocalStorage();
-  
+  // Enhance iOS install experience with better guidance
+  if (iOS && !isStandalone) {
+    enhanceiOSInstallExperience();
+  }
+
   // Show loading indicator initially
   document.getElementById('loadingUI').style.display = 'flex';
   document.getElementById('editorUI').style.display = 'none';
@@ -288,143 +216,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const fetchStatus = document.getElementById('fetchStatus');
   const toast = document.getElementById('toast');
   
-  // Check if we're in standalone mode or a valid PWA state
-  let isPWA = false;
-  if (
-    window.matchMedia('(display-mode: standalone)').matches || 
-    window.navigator.standalone || 
-    document.referrer.includes('android-app://')
-  ) {
-    console.log('This is running as installed PWA');
-    isPWA = true;
-  }
-  
-  // Handle shared link on subdomain access
-  const currentHost = window.location.hostname;
-  const isDirectSubdomainAccess = currentHost.split('.').length > 2 && !currentHost.startsWith('www.');
-  
-  // If we're on a subdomain via direct access (shared link)
-  if (isDirectSubdomainAccess && !isPWA) {
-    console.log('Direct subdomain access via shared link - prioritizing installation');
-    
-    // Focus on making the install button visible
-    setTimeout(function() {
-      if (startBtn) {
-        startBtn.style.display = 'block';
-        startBtn.textContent = "Install as App";
-        startBtn.setAttribute('aria-label', 'Install this app for the best experience');
-        startBtn.style.backgroundColor = '#ff5722';
-        startBtn.style.fontWeight = 'bold';
-      }
-    }, 1000);
-  }
-  
-  // Special handling for PWA mode with source=pwa parameter
-  const urlParams = new URLSearchParams(window.location.search);
-  if (isPWA && urlParams.get('source') === 'pwa') {
-    console.log('PWA in subdomain edit mode');
-    isEditingMode = true;
-    
-    // If the PWA is launched with a new gistUrl, save it
-    if (urlParams.has('gistUrl')) {
-      localStorage.setItem('gistUrl', urlParams.get('gistUrl'));
-    }
-  }
-  
-  // Detect if user is on mobile device
-  const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  
-  // Detect browser type
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  
-  // Listen for the beforeinstallprompt event
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault();
-    // Stash the event so it can be triggered later
-    deferredPrompt = e;
-    
-    console.log('Install prompt detected and ready for use');
-    
-    // Update UI to show the install button
-    if (startBtn) {
-      startBtn.style.display = 'block';
-      
-      // Check if we're on a subdomain via direct access
-      const hostname = window.location.hostname;
-      const isDirectSubdomainAccess = hostname.split('.').length > 2 && !hostname.startsWith('www.');
-      
-      if (isDirectSubdomainAccess) {
-        // Enhance the button for subdomain installs
-        startBtn.textContent = "Install as App";
-        startBtn.setAttribute('aria-label', 'Install this app for the best experience');
-        startBtn.style.backgroundColor = '#ff5722';
-        startBtn.style.fontWeight = 'bold';
-        
-        // Auto-prompt on subdomain after a small delay
-        setTimeout(function() {
-          if (deferredPrompt) {
-            deferredPrompt.prompt();
-            
-            // Log the user's choice
-            deferredPrompt.userChoice.then(function(choiceResult) {
-              if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-                startBtn.textContent = "Launch App";
-                startBtn.setAttribute('aria-label', 'Launch your app');
-                startBtn.style.backgroundColor = '';
-                startBtn.style.fontWeight = '';
-              } else {
-                console.log('User dismissed the install prompt');
-              }
-              deferredPrompt = null;
-            });
-          }
-        }, 3000);
-      } else {
-        // Normal behavior for non-subdomain access
-        startBtn.textContent = "Add to Homescreen";
-        startBtn.setAttribute('aria-label', 'Add this app to your homescreen');
-      }
-    }
-  });
-  
-  // Handle app installed event
-  window.addEventListener('appinstalled', (evt) => {
-    console.log('App was installed to homescreen');
-    deferredPrompt = null;
-    
-    // Update UI
-    if (startBtn && startBtn.textContent === "Add to Homescreen") {
-      startBtn.textContent = "Launch App";
-      startBtn.setAttribute('aria-label', 'Launch your HTML app');
-    }
-  });
-  
-  // For iOS Safari which doesn't support beforeinstallprompt
-  if ((isIOS || isSafari) && !isPWA && startBtn) {
-    startBtn.textContent = "Add to Homescreen";
-    startBtn.setAttribute('aria-label', 'Add this app to your homescreen');
-  }
-  
-  // If no installation prompt is available on non-Safari browsers, show Launch App
-  if (startBtn && (!deferredPrompt && !isSafari && !isIOS) || isMobileDevice) {
-    startBtn.textContent = "Launch App";
-    startBtn.setAttribute('aria-label', 'Launch your HTML app');
-  }
-  
   // Gist info elements
   const gistInfoContainer = document.getElementById('gistInfoContainer');
   const authorAvatar = document.getElementById('authorAvatar');
   const gistTitle = document.getElementById('gistTitle');
   const gistAuthor = document.getElementById('gistAuthor');
   const gistDescription = document.getElementById('gistDescription');
-  
-  // Check if we're in edit mode (specifically on subdomain.html)
-  // This should only happen on subdomains due to NGINX routing
-  const isEditMode = window.location.pathname.includes('/subdomain.html');
   
   // Function to show/hide buttons based on whether there's code
   function updateButtonVisibility(hasContent) {
@@ -436,61 +233,106 @@ document.addEventListener('DOMContentLoaded', function() {
     shareBtn.style.display = (hasContent && hasGistUrl) ? 'block' : 'none';
   }
   
-  // Function to display gist information
-  function displayGistInfo(gistData, filename) {
-    // Set the author information
-    authorAvatar.src = gistData.owner.avatar_url;
-    gistAuthor.textContent = `Created by ${gistData.owner.login}`;
+  // Function to enhance iOS installation experience
+  function enhanceiOSInstallExperience() {
+    console.log('Enhancing iOS installation experience');
     
-    // Set the gist title (use filename if description is empty)
-    if (gistData.description && gistData.description.trim() !== "") {
-      gistTitle.textContent = gistData.description;
-      gistDescription.textContent = `File: ${filename}`;
-    } else {
-      gistTitle.textContent = filename;
-      gistDescription.textContent = "No description provided";
+    // Only enhance if we're not already in standalone mode
+    if (isStandalone) return;
+    
+    // Create a hint that shows only once per session - REMOVED, no more automatic hint
+    
+    // Make the installation guide more prominent for iOS
+    const installBtn = document.getElementById('startBtn');
+    if (installBtn) {
+      // Make button more prominent
+      installBtn.textContent = 'Add to Home Screen';
+      installBtn.style.backgroundColor = '#ff5722';
+      installBtn.style.boxShadow = '0 4px 10px rgba(255, 87, 34, 0.3)';
+      installBtn.style.animation = 'pulse 2s infinite';
+      
+      // Add pulse animation
+      if (!document.getElementById('pulse-animation')) {
+        const style = document.createElement('style');
+        style.id = 'pulse-animation';
+        style.textContent = `
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      // Create detailed iOS install guide when tapping the button
+      installBtn.addEventListener('click', function(event) {
+        // Prevent default action if it's the install button
+        if (installBtn.textContent === 'Add to Home Screen') {
+          event.preventDefault();
+          
+          // Create overlay with detailed iOS install instructions
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0';
+          overlay.style.left = '0';
+          overlay.style.width = '100%';
+          overlay.style.height = '100%';
+          overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.flexDirection = 'column';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          overlay.style.padding = '20px';
+          overlay.style.color = 'white';
+          overlay.style.textAlign = 'center';
+          
+          // Different instructions for iPhone vs iPad
+          const isIPad = /iPad/.test(navigator.userAgent);
+          
+          // Create content
+          overlay.innerHTML = `
+            <h2 style="margin-bottom: 20px; font-size: 24px;">Add to Home Screen</h2>
+            <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: left; max-width: 400px;">
+              <img src="icons/icon-192.png" alt="App Icon" style="width: 60px; height: 60px; display: block; margin: 0 auto 15px auto; border-radius: 12px;">
+              <p style="color: #333; margin-bottom: 5px; font-weight: bold;">PWAH</p>
+              <p style="color: #666; font-size: 14px; margin-top: 0;">PersonalWebAppHost.com</p>
+            </div>
+            <p style="margin-bottom: 30px; font-size: 16px;">Follow these steps to install:</p>
+            <ol style="text-align: left; max-width: 400px; margin-bottom: 30px;">
+              ${isIPad ? 
+                `<li style="margin-bottom: 15px;">Tap the <strong>Share</strong> button <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1zaGFyZSI+PHBhdGggZD0iTTQgMTJ2OGEyIDIgMCAwIDAgMiAyaDEyYTIgMiAwIDAgMCAyLTJ2LTgiPjwvcGF0aD48cG9seWxpbmUgcG9pbnRzPSIxNiA2IDEyIDIgOCA2Ij48L3BvbHlsaW5lPjxsaW5lIHgxPSIxMiIgeTE9IjIiIHgyPSIxMiIgeTI9IjE1Ij48L2xpbmU+PC9zdmc+" style="width: 20px; vertical-align: middle;"> in the toolbar at the top right of Safari</li>` 
+                : 
+                `<li style="margin-bottom: 15px;">Tap the <strong>Share</strong> button <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1zaGFyZSI+PHBhdGggZD0iTTQgMTJ2OGEyIDIgMCAwIDAgMiAyaDEyYTIgMiAwIDAgMCAyLTJ2LTgiPjwvcGF0aD48cG9seWxpbmUgcG9pbnRzPSIxNiA2IDEyIDIgOCA2Ij48L3BvbHlsaW5lPjxsaW5lIHgxPSIxMiIgeTE9IjIiIHgyPSIxMiIgeTI9IjE1Ij48L2xpbmU+PC9zdmc+" style="width: 20px; vertical-align: middle;"> at the bottom of Safari</li>`
+              }
+              <li style="margin-bottom: 15px;">Scroll down and tap <strong>Add to Home Screen</strong></li>
+              <li style="margin-bottom: 15px;">Tap <strong>Add</strong> in the top right corner</li>
+              <li>The app will appear on your home screen!</li>
+            </ol>
+            <button id="close-overlay" style="background-color: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 5px; font-size: 16px; cursor: pointer;">Got it</button>
+          `;
+          
+          document.body.appendChild(overlay);
+          
+          // Add event listener to close button
+          document.getElementById('close-overlay').addEventListener('click', function() {
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => {
+              document.body.removeChild(overlay);
+            }, 300);
+          });
+          
+          return;
+        }
+      });
     }
-    
-    // Calculate time since creation
-    const createdDate = new Date(gistData.created_at);
-    const now = new Date();
-    const timeDiff = now - createdDate;
-    
-    // Format the time difference
-    let timeAgo;
-    const seconds = Math.floor(timeDiff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    
-    if (days > 0) {
-      timeAgo = `${days} ${days === 1 ? 'day' : 'days'} ago`;
-    } else if (hours > 0) {
-      timeAgo = `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
-    } else if (minutes > 0) {
-      timeAgo = `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
-    } else {
-      timeAgo = `${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
-    }
-    
-    // Add time ago to author info
-    gistAuthor.textContent += ` • ${timeAgo}`;
-    
-    // Show the gist info container
-    gistInfoContainer.style.display = "block";
   }
   
   // Function to fetch content from GitHub Gist
   function fetchGistContent(url) {
     fetchStatus.textContent = "Fetching gist...";
-    
-    // Sanitize the URL if it's a script tag
-    const sanitizedUrl = sanitizeGistUrl(url);
-    if (sanitizedUrl !== url) {
-      // Update the input field with the sanitized URL
-      gistUrlInput.value = sanitizedUrl;
-      url = sanitizedUrl;
-    }
     
     // Hide the gist info container while fetching
     gistInfoContainer.style.display = "none";
@@ -542,11 +384,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update share button visibility since gist URL is now filled
         updateButtonVisibility(htmlInput.value.trim().length > 0);
         
-        // Display gist information
-        displayGistInfo(data, files[0].filename);
+        // Try to store the gistUrl
+        try {
+          localStorage.setItem('savedGistUrl', url);
+        } catch (e) {
+          console.warn('Failed to save gistUrl to localStorage:', e);
+        }
         
-        // Save the gistUrl to all storage mechanisms
-        persistGistUrl(gistUrlInput.value.trim());
+        // Save to cookies (for iOS PWA compatibility)
+        try {
+          document.cookie = `gistUrlCookie=${encodeURIComponent(url)};path=/;max-age=31536000`;
+        } catch (e) {
+          console.warn('Failed to save to cookies:', e);
+        }
+        
+        // Display gist information if we have author data
+        if (data.owner) {
+          displayGistInfo(data, files[0].filename);
+        }
       })
       .catch(error => {
         console.error("Error fetching gist:", error);
@@ -554,10 +409,10 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
   
-  // Wait for both service worker registration and data retrieval
-  Promise.all([Promise.resolve(), getCustomHTML()])
+  // Wait for service worker registration and data retrieval
+  Promise.all([getCustomHTML()])
     .then(function(results) {
-      const savedData = results[1]; // This contains {html, gistUrl}
+      const savedData = results[0]; // This contains {html, gistUrl}
       
       // Hide loading UI
       document.getElementById('loadingUI').style.display = 'none';
@@ -566,43 +421,42 @@ document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
       const urlGistUrl = urlParams.get('gistUrl');
       const isPwaSource = urlParams.get('source') === 'pwa';
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       
-      // CASE 1: If we have a gistUrl in URL and we're not in a PWA context, 
-      // always show the editor UI first (this is the shared link case)
-      if (urlGistUrl && !isPwaSource && !isStandalone) {
+      // Check if we have a gistUrl in URL
+      if (urlGistUrl) {
         // Show the editor UI
         document.getElementById('editorUI').style.display = 'block';
         document.getElementById('gistUrl').value = urlGistUrl;
         fetchGistContent(urlGistUrl);
         
-        // Save this to all mechanisms for future use
-        persistGistUrl(urlGistUrl);
+        // Save this to cookies for future use
+        try {
+          document.cookie = `gistUrlCookie=${encodeURIComponent(urlGistUrl)};path=/;max-age=31536000`;
+        } catch (e) {
+          console.warn('Failed to save to cookies:', e);
+        }
         
         return; // Exit early
       }
       
-      // CASE 2: If we have saved HTML and we're not in edit mode, display the app
-      if (savedData && savedData.html && !isEditMode) {
+      // If we have saved HTML, display the app (unless this is a direct edit request)
+      if (savedData && savedData.html && !window.location.pathname.includes('/edit')) {
         // Display the custom app view
         document.getElementById('editorUI').style.display = 'none';
         document.getElementById('appView').style.display = 'block';
-        
-        // Hide the GitHub corner when showing the app
-        const githubBanner = document.getElementById('githubBanner');
-        if (githubBanner) {
-          githubBanner.style.display = 'none';
-        }
-        
         document.title = "Your Custom App";
         document.getElementById('appFrame').srcdoc = savedData.html;
         
-        // Also save the gistUrl to all storage mechanisms if available
+        // Also save the gistUrl to cookies if available
         if (savedData.gistUrl) {
-          persistGistUrl(savedData.gistUrl);
+          try {
+            document.cookie = `gistUrlCookie=${encodeURIComponent(savedData.gistUrl)};path=/;max-age=31536000`;
+          } catch (e) {
+            console.warn('Failed to save to cookies:', e);
+          }
         }
       } else {
-        // CASE 3: Show the editor UI for all other cases
+        // Show the editor UI
         document.getElementById('editorUI').style.display = 'block';
         
         // If there's saved HTML, populate the editor
@@ -610,30 +464,28 @@ document.addEventListener('DOMContentLoaded', function() {
           document.getElementById('htmlInput').value = savedData.html;
         }
         
-        // Handle gistUrl in this order of priority:
-        // 1. URL parameter
-        // 2. Saved in IndexedDB
-        // 3. Other storage mechanisms via getPersistedGistUrl()
-        
-        if (urlGistUrl) {
-          // First priority: URL parameter
-          document.getElementById('gistUrl').value = urlGistUrl;
-          fetchGistContent(urlGistUrl);
-          
-          // Save this to all mechanisms for future use
-          persistGistUrl(urlGistUrl);
-        } else if (savedData && savedData.gistUrl) {
-          // Second priority: IndexedDB
+        // Check if we have a saved gistUrl
+        if (savedData && savedData.gistUrl) {
           document.getElementById('gistUrl').value = savedData.gistUrl;
           fetchGistContent(savedData.gistUrl);
         } else {
-          // Third priority: Check other storage mechanisms
-          getPersistedGistUrl().then(function(persistedGistUrl) {
-            if (persistedGistUrl) {
-              document.getElementById('gistUrl').value = persistedGistUrl;
-              fetchGistContent(persistedGistUrl);
+          // Try to get from cookies
+          try {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.startsWith('gistUrlCookie=')) {
+                const cookieGistUrl = decodeURIComponent(cookie.substring('gistUrlCookie='.length));
+                if (cookieGistUrl) {
+                  document.getElementById('gistUrl').value = cookieGistUrl;
+                  fetchGistContent(cookieGistUrl);
+                  break;
+                }
+              }
             }
-          });
+          } catch (e) {
+            console.warn('Failed to read from cookies:', e);
+          }
         }
         
         // Update button visibility based on content
@@ -659,61 +511,46 @@ document.addEventListener('DOMContentLoaded', function() {
     updateButtonVisibility(hasContent);
   });
   
-  // Monitor gistUrl input for content to update share button visibility
-  gistUrlInput.addEventListener('input', function() {
-    const hasContent = htmlInput.value.trim().length > 0;
-    updateButtonVisibility(hasContent);
+  // "Launch App": Save to IndexedDB then navigate to the root
+  startBtn.addEventListener('click', function() {
+    // Special handling for iOS install experience
+    if (iOS && !isStandalone && startBtn.textContent === 'Add to Home Screen') {
+      // This is handled by the enhanceiOSInstallExperience function
+      return;
+    }
     
-    // Hide gist info when URL is changed or cleared
-    if (gistUrlInput.value.trim() === '') {
-      gistInfoContainer.style.display = 'none';
-    }
-  });
-  
-  // Add blur event to sanitize Gist URL when the input loses focus
-  gistUrlInput.addEventListener('blur', function() {
-    const url = gistUrlInput.value.trim();
-    if (url) {
-      const sanitizedUrl = sanitizeGistUrl(url);
-      if (sanitizedUrl !== url) {
-        gistUrlInput.value = sanitizedUrl;
-      }
-    }
-  });
-
-  // Handle click on "Add to Homescreen" or "Launch App" button
-  if (startBtn) {
-    startBtn.addEventListener('click', function() {
-      // Always save the current gist URL
-      const currentGistUrl = gistUrlInput.value.trim();
-      localStorage.setItem('gistUrl', currentGistUrl);
-      
-      // Check if the button is in install or launch mode
-      if (startBtn.textContent === "Add to Homescreen") {
-        if (deferredPrompt) {
-          // Show the install prompt
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then(function(choiceResult) {
-            if (choiceResult.outcome === 'accepted') {
-              console.log('User accepted the install prompt');
-              startBtn.textContent = "Launch App";
-              startBtn.setAttribute('aria-label', 'Launch the installed app');
-              // Launch the app once installed
-              setTimeout(launchApp, 1000);
-            }
-            deferredPrompt = null;
-          });
-        } else if (isIOS || isSafari) {
-          // For iOS/Safari, show custom install instructions
-          alert('To install this app: tap the share icon, then "Add to Home Screen"');
-          launchApp();
+    const htmlCode = htmlInput.value;
+    
+    // Get the current gistUrl
+    const currentGistUrl = gistUrlInput.value.trim();
+    
+    // For iOS in standalone mode (PWA), we need a different approach
+    if (isStandalone) {
+      // Save both HTML and gistUrl to IndexedDB
+      saveCustomHTML(htmlCode, currentGistUrl).then(function() {
+        // In standalone mode (PWA), we'll show the app directly in the current view
+        document.getElementById('editorUI').style.display = 'none';
+        document.getElementById('appView').style.display = 'block';
+        document.title = "Your Custom App";
+        document.getElementById('appFrame').srcdoc = htmlCode;
+        
+        // Update the URL to reflect we're in app view, but without forcing a page reload
+        try {
+          window.history.replaceState({}, '', './');
+        } catch(e) {
+          console.warn('Failed to update history state:', e);
         }
-      } else {
-        // Launch App mode
-        launchApp();
-      }
-    });
-  }
+        
+        console.log('Switched to app view directly');
+      });
+    } else {
+      // Save both HTML and gistUrl to IndexedDB
+      saveCustomHTML(htmlCode, currentGistUrl).then(function() {
+        // For non-PWA contexts, use standard navigation
+        window.location.href = './';
+      });
+    }
+  });
 
   // "Clear Code": Clear the textarea and hide buttons
   deleteBtn.addEventListener('click', function() {
@@ -731,24 +568,20 @@ document.addEventListener('DOMContentLoaded', function() {
   shareBtn.addEventListener('click', function() {
     const gistUrl = gistUrlInput.value.trim();
     if (gistUrl) {
-      // Save to all storage mechanisms
-      persistGistUrl(gistUrl);
-      
-      // Make sure it's also in the IndexedDB with the current HTML
+      // Save to IndexedDB with the current HTML
       const htmlCode = htmlInput.value;
       saveCustomHTML(htmlCode, gistUrl);
       
       // Create the shareable URL with the gistUrl parameter
-      const currentUrl = window.location.href.split('?')[0]; // Remove any existing query parameters
-      const shareableUrl = `${currentUrl}?gistUrl=${encodeURIComponent(gistUrl)}`;
+      const shareableUrl = `${window.location.origin}?gistUrl=${encodeURIComponent(gistUrl)}`;
       
       // Copy to clipboard
       navigator.clipboard.writeText(shareableUrl)
         .then(function() {
           // Show success toast
-          toast.classList.add('visible');
+          toast.style.opacity = '1';
           setTimeout(function() {
-            toast.classList.remove('visible');
+            toast.style.opacity = '0';
           }, 3000);
         })
         .catch(function(err) {
@@ -758,83 +591,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Special handling for iOS in standalone mode (PWA)
-  window.addEventListener('load', function() {
-    // Check if we're in standalone mode and on subdomain.html with a source=pwa parameter
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    const urlParams = new URLSearchParams(window.location.search);
-    const isPwaSource = urlParams.get('source') === 'pwa';
-    const isSubdomainPage = window.location.pathname.includes('/subdomain.html');
+  // Function to display gist information
+  function displayGistInfo(gistData, filename) {
+    // Make sure we have owner information
+    if (!gistData.owner || !gistData.owner.avatar_url) {
+      console.warn('Missing owner information in gist data');
+      return;
+    }
     
-    if (isStandalone && isPwaSource && isSubdomainPage) {
-      console.log('PWA in subdomain edit mode - checking for gistUrl');
-      
-      // Check if we already have a gistUrl in the URL
-      const urlGistUrl = urlParams.get('gistUrl');
-      
-      if (!urlGistUrl) {
-        // No gistUrl in URL, try to restore from storage
-        getPersistedGistUrl().then(function(persistedGistUrl) {
-          if (persistedGistUrl) {
-            console.log('Found persisted gistUrl:', persistedGistUrl);
-            
-            // Set the input field
-            document.getElementById('gistUrl').value = persistedGistUrl;
-            
-            // Fetch the content
-            fetchGistContent(persistedGistUrl);
-            
-            // Update the URL without reloading (important for iOS)
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('gistUrl', persistedGistUrl);
-            window.history.replaceState({}, '', newUrl);
-          }
-        });
-      }
-    }
-  });
-});
-
-// Function to launch the app
-function launchApp() {
-  // Logic to either launch or guide the user based on environment
-  const gistUrl = localStorage.getItem('gistUrl');
-  
-  if (isMobileDevice) {
-    if (isPWA) {
-      // Already in standalone mode, just continue
-      if (gistUrl) {
-        window.location.href = `/subdomain.html?source=pwa&gistUrl=${encodeURIComponent(gistUrl)}`;
-      } else {
-        alert('No gist URL found. Please save a gist first.');
-      }
+    // Set the author information
+    authorAvatar.src = gistData.owner.avatar_url;
+    authorAvatar.alt = `${gistData.owner.login}'s avatar`;
+    gistAuthor.textContent = `Created by ${gistData.owner.login}`;
+    
+    // Set the gist title (use filename if description is empty)
+    if (gistData.description && gistData.description.trim() !== "") {
+      gistTitle.textContent = gistData.description;
+      gistDescription.textContent = `File: ${filename}`;
     } else {
-      // Not in standalone, guide user to add to homescreen
-      if (isIOS || isSafari) {
-        alert('To install: tap the share icon, then "Add to Home Screen"');
-      } else {
-        alert('Install this app from your browser menu for the best experience');
-      }
+      gistTitle.textContent = filename;
+      gistDescription.textContent = "No description provided";
     }
-  } else {
-    // Desktop behavior - open in a new tab
-    if (gistUrl) {
-      window.open(`/subdomain.html?source=pwa&gistUrl=${encodeURIComponent(gistUrl)}`, '_blank');
-    } else {
-      alert('No gist URL found. Please save a gist first.');
-    }
+    
+    // Show the gist info container
+    gistInfoContainer.style.display = "block";
   }
-}
-
-// --- Special handling for direct subdomain access ---
-(function() {
-  // Check if we're on a subdomain
-  const hostname = window.location.hostname;
-  const isSubdomain = hostname.split('.').length > 2 && !hostname.startsWith('www.');
-  
-  // If we're on a subdomain and not in standalone mode, trigger installation flow
-  if (isSubdomain) {
-    console.log('Direct subdomain access detected - optimizing for installation');
-    // We'll prioritize PWA installation for subdomain links
-  }
-})(); 
+}); 
