@@ -5,148 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name='impact-site-verification' value='c5d6d9a9-ac0e-40fe-9624-21141567a9d9'>
     <title>PWAH - Personal Web App Host</title>
+    
+    <!-- PWA Icons -->
+    <link rel="icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="apple-touch-startup-image" href="icons/icon-512.png">
+    
+    <link rel="stylesheet" href="styles.css">
+    
     <style>
-        @media (max-width: 480px) {
-            body {
-                padding: 20px 15px;
-            }
-            h1 {
-                font-size: 20px;
-            }
-            input[type="text"] {
-                padding: 10px 12px;
-            }
-            .preview {
-                font-size: 16px;
-                padding: 12px;
-            }
-            button {
-                padding: 10px 20px;
-            }
-        }
+        /* Specific styles for the landing page */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 40px 20px;
             background-color: #f9f9f9;
-            color: #333;
-            box-sizing: border-box;
         }
-        * {
-            box-sizing: inherit;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-        .input-container {
-            margin-bottom: 30px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            outline: none;
-            transition: border-color 0.3s;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        input[type="text"]:focus {
-            border-color: #3498db;
-        }
+        
         .preview {
             margin: 20px 0;
             padding: 15px;
             background-color: #ecf0f1;
-            border-radius: 6px;
+            border-radius: var(--border-radius);
             font-size: 18px;
             color: #2980b9;
             word-break: break-all;
         }
-        .button-container {
-            display: flex;
-            justify-content: flex-end;
-        }
-        button {
-            padding: 12px 25px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
+        
+        #goButton {
             opacity: 0;
             transform: scale(0.95);
             pointer-events: none;
+            transition: opacity 0.3s, transform 0.1s, background-color 0.3s;
         }
-        button.visible {
+        
+        #goButton.visible {
             opacity: 1;
             transform: scale(1);
             pointer-events: auto;
         }
-        button:hover {
-            background-color: #2980b9;
+        
+        .input-container {
+            margin-bottom: 30px;
         }
-        button:active {
-            transform: scale(0.98);
+        
+        #appName {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            outline: none;
+            transition: border-color 0.3s;
         }
-      
-        .github-corner {
-          position: absolute;
-          top: 0;
-          right: 0;
-          width: 80px;
-          height: 80px;
-          fill: var(--primary-color);
-          color: white;
-          transition: var(--transition);
-        }
-
-        .github-corner:hover {
-          fill: var(--secondary-color);
-        }
-
-        .github-corner .octo-arm {
-          transform-origin: 130px 106px;
-        }
-
-        .github-corner:hover .octo-arm {
-          animation: octocat-wave 560ms ease-in-out;
-        }
-
-        @keyframes octocat-wave {
-          0%, 100% { transform: rotate(0); }
-          20%, 60% { transform: rotate(-25deg); }
-          40%, 80% { transform: rotate(10deg); }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-          
-          .github-corner {
-            width: 60px;
-            height: 60px;
-          }
-
-          .github-corner:hover .octo-arm {
-            animation: none;
-          }
-
-          .github-corner .octo-arm {
-            animation: octocat-wave 560ms ease-in-out;
-          }
+        
+        #appName:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
         }
     </style>
 </head>
@@ -162,7 +77,10 @@
         </svg>
         </a>
     </div>
-    <h1>PWAH! You have an app.</h1>
+
+    <header>
+        <h1>PWAH! You have an app.</h1>
+    </header>
 
     <div class="input-container">
         <input type="text" id="appName" placeholder="Type your app name..." autocomplete="off">
