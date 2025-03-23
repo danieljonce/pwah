@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: left; max-width: 400px;">
               <img src="icons/icon-192.png" alt="App Icon" style="width: 60px; height: 60px; display: block; margin: 0 auto 15px auto; border-radius: 12px;">
               <p style="color: #333; margin-bottom: 5px; font-weight: bold;">PWAH</p>
-              <p style="color: #666; font-size: 14px; margin-top: 0;">PersonalWebAppHost.com</p>
+              <p style="color: #666; font-size: 14px; margin-top: 0;">pwah.io</p>
             </div>
             <p style="margin-bottom: 30px; font-size: 16px;">Follow these steps to install:</p>
             <ol style="text-align: left; max-width: 400px; margin-bottom: 30px;">
