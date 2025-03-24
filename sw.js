@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pwah-app-v1';
+const CACHE_NAME = 'pwah-app-v3';
 
 // Files to cache
 const CACHE_URLS = [
@@ -8,16 +8,23 @@ const CACHE_URLS = [
   './manifest.json',
   './sw.js',
   './styles.css',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-icon-152.png',
-  './icons/apple-icon-167.png',
-  './icons/apple-icon-180.png',
-  './icons/splash/apple-splash-dark-2048-2732.png',
-  './icons/splash/apple-splash-dark-1668-2388.png',
-  './icons/splash/apple-splash-dark-1536-2048.png',
-  './icons/splash/apple-splash-dark-1125-2436.png',
-  './icons/splash/apple-splash-dark-750-1334.png'
+  './icons/android/android-launchericon-192-192.png',
+  './icons/android/android-launchericon-512-512.png',
+  './icons/ios/152.png',
+  './icons/ios/167.png',
+  './icons/ios/180.png',
+  './icons/ios/192.png',
+  './icons/ios/512.png',
+  './icons/splash/iPhone_16_Pro_Max_portrait.png',
+  './icons/splash/iPhone_16__iPhone_15_Pro__iPhone_15__iPhone_14_Pro_portrait.png',
+  './icons/splash/iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png',
+  './icons/splash/iPhone_11__iPhone_XR_portrait.png',
+  './icons/splash/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_portrait.png',
+  './icons/splash/12.9__iPad_Pro_portrait.png',
+  './icons/splash/11__iPad_Pro__10.5__iPad_Pro_portrait.png',
+  './icons/splash/9.7__iPad_Pro__7.9__iPad_mini__9.7__iPad_Air__9.7__iPad_portrait.png',
+  './icons/splash/12.9__iPad_Pro_landscape.png',
+  './icons/splash/11__iPad_Pro__10.5__iPad_Pro_landscape.png'
 ];
 
 // Install event - Cache static assets
