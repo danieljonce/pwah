@@ -126,71 +126,6 @@ function addIOSInstallGuide() {
   return;
 }
 
-// Show a more detailed iOS install popup
-function showIOSInstallPopup() {
-  const popup = document.createElement('div');
-  popup.style.position = 'fixed';
-  popup.style.top = '50%';
-  popup.style.left = '50%';
-  popup.style.transform = 'translate(-50%, -50%)';
-  popup.style.background = 'white';
-  popup.style.borderRadius = '12px';
-  popup.style.boxShadow = '0 5px 30px rgba(0, 0, 0, 0.3)';
-  popup.style.padding = '20px';
-  popup.style.zIndex = '10000';
-  popup.style.maxWidth = '90%';
-  popup.style.width = '320px';
-  popup.style.textAlign = 'center';
-  
-  popup.innerHTML = `
-    <img src="icons/icon-192.png" style="width: 70px; height: 70px; margin: 0 auto 15px; display: block; border-radius: 15px;">
-    <h3 style="margin-top: 0; color: #333; font-size: 18px;">Install PWAH App</h3>
-    <p style="color: #666; margin-bottom: 20px;">Install this app on your home screen for the best experience.</p>
-    <div style="text-align: left; margin-bottom: 20px;">
-      <p style="margin: 5px 0; color: #333;"><b>1.</b> Tap the share icon <span style="font-size: 20px;">⎙</span></p>
-      <p style="margin: 5px 0; color: #333;"><b>2.</b> Select "Add to Home Screen"</p>
-      <p style="margin: 5px 0; color: #333;"><b>3.</b> Tap "Add" to confirm</p>
-    </div>
-    <button id="close-popup" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; width: 100%;">Got it</button>
-  `;
-  
-  document.body.appendChild(popup);
-  
-  // Animate in
-  popup.animate([
-    { transform: 'translate(-50%, -40%)', opacity: 0 },
-    { transform: 'translate(-50%, -50%)', opacity: 1 }
-  ], {
-    duration: 300,
-    easing: 'ease-out'
-  });
-  
-  // Add overlay
-  const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.right = '0';
-  overlay.style.bottom = '0';
-  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-  overlay.style.zIndex = '9999';
-  document.body.appendChild(overlay);
-  
-  // Handle close button
-  document.getElementById('close-popup').addEventListener('click', () => {
-    popup.animate([
-      { transform: 'translate(-50%, -50%)', opacity: 1 },
-      { transform: 'translate(-50%, -40%)', opacity: 0 }
-    ], {
-      duration: 200,
-      easing: 'ease-in'
-    }).onfinish = () => {
-      popup.remove();
-      overlay.remove();
-    };
-  });
-}
-
 // Add iOS install guide when DOM is loaded - keeping this but the function now returns immediately
 document.addEventListener('DOMContentLoaded', addIOSInstallGuide);
 
@@ -294,10 +229,10 @@ document.addEventListener('DOMContentLoaded', function() {
           // Create content
           overlay.innerHTML = `
             <h2 style="margin-bottom: 20px; font-size: 24px;">Add to Home Screen</h2>
-            <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: left; max-width: 400px;">
-              <img src="icons/icon-192.png" alt="App Icon" style="width: 60px; height: 60px; display: block; margin: 0 auto 15px auto; border-radius: 12px;">
-              <p style="color: #333; margin-bottom: 5px; font-weight: bold;">PWAH</p>
-              <p style="color: #666; font-size: 14px; margin-top: 0;">pwah.io</p>
+            <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; max-width: 400px;">
+              <img src="icons/ios/apple-icon-192.png" alt="App Icon" style="width: 60px; height: 60px; display: block; margin: 0 auto 15px auto; border-radius: 12px;">
+              <p style="color: #333; margin-bottom: 5px; font-weight: bold; text-align: center;">PWAH</p>
+              <p style="color: #666; font-size: 14px; margin-top: 0; text-align: center;">pwah.io</p>
             </div>
             <p style="margin-bottom: 30px; font-size: 16px;">Follow these steps to install:</p>
             <ol style="text-align: left; max-width: 400px; margin-bottom: 30px;">
@@ -616,4 +551,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show the gist info container
     gistInfoContainer.style.display = "block";
   }
-}); 
+});

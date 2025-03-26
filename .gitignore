@@ -27,3 +27,7 @@ Temporary Items
 
 # iCloud generated files
 *.icloud
+
+# Project specific ignores
+# Icons folder (contains app icons)
+/icons/
