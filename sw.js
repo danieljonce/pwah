@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pwah-app-v3';
+const CACHE_NAME = 'pwah-app-v8';
 
 // Files to cache
 const CACHE_URLS = [
@@ -10,11 +10,12 @@ const CACHE_URLS = [
   './styles.css',
   './icons/android/android-launchericon-192-192.png',
   './icons/android/android-launchericon-512-512.png',
-  './icons/ios/152.png',
-  './icons/ios/167.png',
-  './icons/ios/180.png',
-  './icons/ios/192.png',
-  './icons/ios/512.png',
+  './icons/ios/apple-icon-152.png',
+  './icons/ios/apple-icon-167.png',
+  './icons/ios/apple-icon-180.png',
+  './icons/ios/apple-icon-192.png',
+  './icons/ios/apple-icon-512.png',
+  './icons/ios/apple-icon-1024.png',
   './icons/splash/iPhone_16_Pro_Max_portrait.png',
   './icons/splash/iPhone_16__iPhone_15_Pro__iPhone_15__iPhone_14_Pro_portrait.png',
   './icons/splash/iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png',
