@@ -174,7 +174,7 @@ textarea:focus {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%) translateY(100px);
-  background-color: rgba(44, 62, 80, 0.95);
+  background-color: #27ae60;
   color: white;
   padding: 15px 25px;
   border-radius: var(--border-radius);
@@ -184,6 +184,11 @@ textarea:focus {
   z-index: 1000;
   font-weight: 500;
   pointer-events: none;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .toast.visible {
@@ -288,4 +293,84 @@ textarea:focus {
   .github-corner .octo-arm {
     animation: octocat-wave 560ms ease-in-out;
   }
+}
+
+/* Installation UI styles */
+.installation-instructions {
+  background-color: #f9f9f9;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.installation-instructions h3 {
+  color: #3498db !important;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.3em;
+}
+
+.step-item {
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.step-number {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  background-color: #3498db !important;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.ios-share-icon {
+  vertical-align: middle;
+  background-color: #007AFF;
+  padding: 3px;
+  border-radius: 5px;
+  color: white;
+}
+
+.android-menu-icon {
+  vertical-align: middle;
+}
+
+#desktop-instructions p {
+  margin-bottom: 20px;
+}
+
+#android-install-button {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 20px auto 0;
+  background-color: var(--accent-color);
+  padding: 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: pulse 2s infinite;
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 } 

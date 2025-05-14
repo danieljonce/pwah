@@ -71,12 +71,59 @@
   </script>
 </head>
 <body>
-  <!-- Editor UI -->
+  <!-- Installation UI (shown when not in standalone mode) -->
+  <div id="installUI" style="display: none;" role="main">
+    <div class="container">
+      <header>
+        <h1>Personal Web App Host</h1>
+        <h2>Your app on your phone in 10 seconds or less.</h2>
+      </header>
+      
+      <div class="editor-card">
+        <!-- Gist info container for preview -->
+        <div id="previewGistInfoContainer" style="margin-bottom: 20px; display: none; background-color: var(--light-gray); border-radius: var(--border-radius); padding: 15px;" aria-live="polite">
+          <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <img id="previewAuthorAvatar" src="" alt="Author avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+            <div>
+              <h3 id="previewGistTitle" style="margin: 0 0 5px 0; font-size: 18px; color: var(--primary-color);"></h3>
+              <p id="previewGistAuthor" style="margin: 0; font-size: 14px; color: var(--secondary-color);"></p>
+            </div>
+          </div>
+          <p id="previewGistDescription" style="margin: 10px 0 0 0; font-size: 14px; color: var(--text-color);"></p>
+        </div>
+        
+        <div class="installation-instructions">
+          <h3 style="color: #3498db;">Step 1: Add this app to your Home Screen</h3>
+          
+          <div id="ios-instructions" style="display: none;">
+            <p class="step-item"><span class="step-number">1)</span> Tap the <strong>Share</strong> button <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ios-share-icon"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> at the bottom of Safari.</p>
+            <p class="step-item"><span class="step-number">2)</span> Scroll down and tap <strong>Add to Home Screen</strong></p>
+            <p class="step-item"><span class="step-number">3)</span> Tap <strong>Add</strong> in the top right corner</p>
+            <p class="step-item"><span class="step-number">4)</span> Open the app from your home screen to add your code or launch an app shared with you!</p>
+          </div>
+          
+          <div id="android-instructions" style="display: none;">
+            <p class="step-item"><span class="step-number">1)</span> Tap the menu button <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="android-menu-icon"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg> in your browser.</p>
+            <p class="step-item"><span class="step-number">2)</span> Tap <strong>Add to Home screen</strong></p>
+            <p class="step-item"><span class="step-number">3)</span> Tap <strong>Add</strong> when prompted</p>
+            <p class="step-item"><span class="step-number">4)</span> Open the app from your home screen to add your code or launch an app shared with you!</p>
+            <button id="android-install-button">Install App</button>
+          </div>
+          
+          <div id="desktop-instructions" style="display: none;">
+            <p>This app is designed for mobile devices. For the best experience, please open this page on your smartphone or tablet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor UI (only shown in standalone mode) -->
   <div id="editorUI" style="display: none;" role="main">
     <div class="container">
       <header>
         <h1>Personal Web App Host</h1>
-        <h2>A custom, local, app on your phone in 10 seconds.</h2>
+        <h2>Your app on your phone in 10 seconds or less.</h2>
       </header>
       
       <div class="editor-card">
@@ -101,17 +148,23 @@
           <p id="gistDescription" style="margin: 10px 0 0 0; font-size: 14px; color: var(--text-color);"></p>
         </div>
         
+        <div class="button-container" style="margin-bottom: 15px;">
+          <button id="startBtn" style="display: none;" aria-label="Launch your HTML app">Launch App</button>
+          <button id="shareBtn" style="display: none;" aria-label="Share this app">Share App</button>
+        </div>
+        
         <label for="htmlInput" class="editor-label">HTML</label>
         <textarea id="htmlInput" placeholder="Place the HTML code for your app here." aria-label="HTML code editor"></textarea>
 
         <div class="button-container">
-          <button id="startBtn" style="display: none;" aria-label="Launch your HTML app">Launch App</button>
           <button id="deleteBtn" style="display: none;" aria-label="Clear HTML code">Clear Code</button>
-          <button id="shareBtn" style="display: none;" aria-label="Share this app">Share App</button>
         </div>
         
         <!-- Toast notification for copy success -->
-        <div id="toast" class="toast" role="status" aria-live="polite">Link copied to clipboard!</div>
+        <div id="toast" class="toast" role="status" aria-live="polite">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Link copied to clipboard!
+        </div>
       </div>
     </div>
   </div>
