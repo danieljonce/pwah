@@ -24,6 +24,90 @@ body, html {
   width: 100%;
   overflow-x: hidden;
   position: relative;
+  margin: 0;
+  padding: 0;
+  /* Fix for mobile viewport issues */
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Fix the main editor UI viewport height */
+#editorUI {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--light-gray);
+}
+
+#installUI {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--light-gray);
+}
+
+#loadingUI {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: white;
+}
+
+/* Ensure container accounts for safe areas */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  padding-top: max(40px, env(safe-area-inset-top) + 20px);
+  padding-bottom: max(40px, env(safe-area-inset-bottom) + 20px);
+  min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+/* Mobile-specific fixes for main UI */
+@media screen and (max-width: 768px) {
+  body, html {
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+  }
+  
+  #editorUI,
+  #installUI,
+  #loadingUI {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+  }
+  
+  .container {
+    padding: 20px 15px;
+    padding-top: max(20px, env(safe-area-inset-top) + 10px);
+    padding-bottom: max(20px, env(safe-area-inset-bottom) + 10px);
+    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
+/* iOS Safari specific fixes for main UI */
+@supports (-webkit-touch-callout: none) {
+  body, html {
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+  
+  #editorUI,
+  #installUI,
+  #loadingUI {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Ensure iframes have no default styling that could cause gaps */
+iframe {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  outline: none;
+  background: transparent;
 }
 
 h1, h2 {
@@ -78,6 +162,15 @@ header {
   border-radius: var(--border-radius);
   padding: 30px;
   box-shadow: var(--box-shadow);
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Mobile adjustments for editor card */
+@media screen and (max-width: 768px) {
+  .editor-card {
+    padding: 20px;
+    margin-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .editor-label {
@@ -131,11 +224,147 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
 }
 
-/* App iframe */
+/* App iframe - FIXED */
+#appView {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height */
+  background: white;
+  z-index: 999;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 #appFrame {
   width: 100%;
   height: 100%;
   border: none;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* Preview View - FIXED */
+#previewView {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height */
+  z-index: 1000;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#closePreviewBtn {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  line-height: 44px;
+  padding: 0;
+  background: #3498db;
+  color: white;
+  border: none;
+  font-weight: bold;
+  z-index: 1001;
+  border-radius: 0;
+  flex-shrink: 0;
+  padding-top: env(safe-area-inset-top);
+  height: calc(44px + env(safe-area-inset-top));
+}
+
+#previewFrame {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+  min-height: 0; /* Important for flexbox */
+}
+
+/* Comprehensive viewport handling */
+@supports (height: 100dvh) {
+  #appView,
+  #previewView {
+    height: 100dvh;
+  }
+}
+
+@supports (height: 100lvh) {
+  #appView,
+  #previewView {
+    height: 100lvh; /* Large viewport height - maximum when UI is hidden */
+  }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  #appView,
+  #previewView {
+    height: -webkit-fill-available;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  #appFrame,
+  #previewFrame {
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Android Chrome specific fixes */
+@media screen and (max-width: 768px) {
+  #appView,
+  #previewView {
+    height: calc(100vh - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Force full height on mobile devices */
+@media screen and (max-device-width: 768px) {
+  #appView {
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  #previewView {
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+}
+
+/* Fallback for very old browsers */
+@supports not (height: 100dvh) {
+  #appView,
+  #previewView {
+    height: 100vh;
+    min-height: 100vh;
+  }
+}
+
+/* Prevent scrolling when app or preview is active */
+body.app-active,
+body.preview-active {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
 }
 
 /* Loading UI */
@@ -198,14 +427,6 @@ textarea:focus {
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-  .container {
-    padding: 20px 15px;
-  }
-  
-  .editor-card {
-    padding: 20px;
-  }
-  
   textarea {
     height: 250px;
   }
@@ -355,4 +576,4 @@ textarea:focus {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
-} 
+}

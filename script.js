@@ -212,8 +212,117 @@ function displayGistPreview(gistData, filename) {
   previewContainer.style.display = "block";
 }
 
-// --- App Initialization ---
-document.addEventListener('DOMContentLoaded', function() {
+// Function to check if there's existing app data
+async function checkExistingApps() {
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['app'], 'readonly');
+      const store = transaction.objectStore('app');
+      const request = store.getAll();
+      
+      request.onsuccess = function(event) {
+        const apps = event.target.result;
+        resolve(apps && apps.length > 0);
+      };
+      
+      request.onerror = function(event) {
+        reject(event.target.error);
+      };
+    });
+  } catch (error) {
+    console.error('Error checking existing apps:', error);
+    return false;
+  }
+}
+
+// Function to show the warning dialog
+function showExistingAppsWarning() {
+  const warningDialog = document.createElement('div');
+  warningDialog.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  `;
+  
+  const dialogContent = document.createElement('div');
+  dialogContent.style.cssText = `
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 90%;
+    width: 400px;
+    text-align: center;
+  `;
+  
+  dialogContent.innerHTML = `
+    <h2 style="color: #3498db; margin-top: 0;">Existing Apps Found</h2>
+    <p>We found existing apps installed from this origin. Would you like to:</p>
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+      <button id="continueBtn" style="background: #3498db; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold;">Continue with Existing Data</button>
+      <button id="deleteBtn" style="background: #e74c3c; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold;">Delete Existing Data</button>
+    </div>
+  `;
+  
+  warningDialog.appendChild(dialogContent);
+  document.body.appendChild(warningDialog);
+  
+  // Handle continue button
+  document.getElementById('continueBtn').addEventListener('click', function() {
+    warningDialog.remove();
+    // Continue with normal app initialization
+    initializeApp();
+  });
+  
+  // Handle delete button
+  document.getElementById('deleteBtn').addEventListener('click', async function() {
+    try {
+      const db = await openDatabase();
+      const transaction = db.transaction(['app'], 'readwrite');
+      const store = transaction.objectStore('app');
+      await store.clear();
+      warningDialog.remove();
+      // Initialize app with fresh state
+      initializeApp();
+    } catch (error) {
+      console.error('Error deleting existing apps:', error);
+      alert('Error deleting existing apps. Please try again.');
+    }
+  });
+}
+
+// Helper functions to manage body classes and prevent scrolling
+function showPreview() {
+  document.body.classList.add('preview-active');
+  const previewView = document.getElementById('previewView');
+  previewView.style.display = 'flex';
+}
+
+function hidePreview() {
+  document.body.classList.remove('preview-active');
+  const previewView = document.getElementById('previewView');
+  previewView.style.display = 'none';
+}
+
+function showApp() {
+  document.body.classList.add('app-active');
+  document.getElementById('appView').style.display = 'block';
+}
+
+function hideApp() {
+  document.body.classList.remove('app-active');
+  document.getElementById('appView').style.display = 'none';
+}
+
+// Function to initialize the app
+function initializeApp() {
   // Show loading indicator initially
   document.getElementById('loadingUI').style.display = 'flex';
   document.getElementById('editorUI').style.display = 'none';
@@ -349,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Display the custom app view if we're in standalone mode and have saved HTML
         document.getElementById('editorUI').style.display = 'none';
         document.getElementById('installUI').style.display = 'none';
-        document.getElementById('appView').style.display = 'block';
+        showApp();
         document.title = "Your Custom App";
         document.getElementById('appFrame').srcdoc = savedData.html;
         
@@ -468,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
       saveCustomHTML(htmlCode, currentGistUrl).then(function() {
         // In standalone mode (PWA), we'll show the app directly in the current view
         document.getElementById('editorUI').style.display = 'none';
-        document.getElementById('appView').style.display = 'block';
+        showApp();
         document.title = "Your Custom App";
         document.getElementById('appFrame').srcdoc = htmlCode;
         
@@ -581,21 +690,33 @@ document.addEventListener('DOMContentLoaded', function() {
   previewBtn.addEventListener('click', function() {
     const htmlCode = htmlInput.value;
     previewFrame.srcdoc = htmlCode;
-    previewView.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // Prevent scrolling of the main page
+    showPreview();
   });
 
   // Handle close preview button click
   closePreviewBtn.addEventListener('click', function() {
-    previewView.style.display = 'none';
-    document.body.style.overflow = ''; // Restore scrolling
+    hidePreview();
   });
 
   // Handle escape key to close preview
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && previewView.style.display === 'block') {
-      previewView.style.display = 'none';
-      document.body.style.overflow = '';
+    if (e.key === 'Escape' && previewView.style.display === 'flex') {
+      hidePreview();
     }
   });
+}
+
+// --- App Initialization ---
+document.addEventListener('DOMContentLoaded', async function() {
+  // Check for existing apps if we're in standalone mode
+  if (isStandalone) {
+    const hasExistingApps = await checkExistingApps();
+    if (hasExistingApps) {
+      showExistingAppsWarning();
+    } else {
+      initializeApp();
+    }
+  } else {
+    initializeApp();
+  }
 });

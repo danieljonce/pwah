@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pwah-app-v27';
+const CACHE_NAME = 'pwah-app-v57';
 
 // Files to cache
 const CACHE_URLS = [
