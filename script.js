@@ -225,10 +225,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const startBtn = document.getElementById('startBtn');
   const deleteBtn = document.getElementById('deleteBtn');
   const shareBtn = document.getElementById('shareBtn');
+  const previewBtn = document.getElementById('previewBtn');
   const gistUrlInput = document.getElementById('gistUrl');
   const fetchBtn = document.getElementById('fetchBtn');
   const fetchStatus = document.getElementById('fetchStatus');
   const toast = document.getElementById('toast');
+  const previewView = document.getElementById('previewView');
+  const previewFrame = document.getElementById('previewFrame');
+  const closePreviewBtn = document.getElementById('closePreviewBtn');
   
   // Gist info elements
   const gistInfoContainer = document.getElementById('gistInfoContainer');
@@ -241,6 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateButtonVisibility(hasContent) {
     startBtn.style.display = hasContent ? 'block' : 'none';
     deleteBtn.style.display = hasContent ? 'block' : 'none';
+    previewBtn.style.display = hasContent ? 'block' : 'none';
     
     // Show share button only if both gist URL and HTML content exist
     const hasGistUrl = gistUrlInput.value.trim().length > 0;
@@ -571,4 +576,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show the gist info container
     gistInfoContainer.style.display = "block";
   }
+
+  // Handle preview button click
+  previewBtn.addEventListener('click', function() {
+    const htmlCode = htmlInput.value;
+    previewFrame.srcdoc = htmlCode;
+    previewView.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling of the main page
+  });
+
+  // Handle close preview button click
+  closePreviewBtn.addEventListener('click', function() {
+    previewView.style.display = 'none';
+    document.body.style.overflow = ''; // Restore scrolling
+  });
+
+  // Handle escape key to close preview
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && previewView.style.display === 'block') {
+      previewView.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  });
 });

@@ -148,8 +148,9 @@
         </div>
         
         <div class="button-container" style="margin-bottom: 15px;">
-          <button id="startBtn" style="display: none;" aria-label="Launch your HTML app">Launch App</button>
-          <button id="shareBtn" style="display: none;" aria-label="Share this app">Share App</button>
+          <button id="previewBtn" style="display: none;" aria-label="Preview your HTML app">Preview</button>
+          <button id="startBtn" style="display: none;" aria-label="Launch your HTML app">Launch</button>
+          <button id="shareBtn" style="display: none;" aria-label="Share this app">Share</button>
         </div>
         
         <label for="htmlInput" class="editor-label">HTML</label>
@@ -171,6 +172,12 @@
   <!-- App View (shown when a custom app has been saved) -->
   <div id="appView" style="display: none; width:100%; height:100vh;">
     <iframe id="appFrame" title="Your Custom App" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-presentation allow-top-navigation"></iframe>
+  </div>
+
+  <!-- Preview View -->
+  <div id="previewView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: white;">
+    <button id="closePreviewBtn" style="position: fixed; top: 0; left: 0; width: 100%; padding: 10px; background: #3498db; color: white; border: none; font-weight: bold; z-index: 1001;">Close Preview</button>
+    <iframe id="previewFrame" style="width: 100%; height: 100%; border: none; margin-top: 40px;" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-presentation allow-top-navigation"></iframe>
   </div>
 
   <!-- Loading indicator -->
