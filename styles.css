@@ -20,84 +20,12 @@ body, html {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--light-gray);
   color: var(--text-color);
-  height: 100%;
-  width: 100%;
-  overflow-x: hidden;
-  position: relative;
   margin: 0;
   padding: 0;
-  /* Fix for mobile viewport issues */
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-/* Fix the main editor UI viewport height */
-#editorUI {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background-color: var(--light-gray);
-}
-
-#installUI {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background-color: var(--light-gray);
-}
-
-#loadingUI {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background-color: white;
-}
-
-/* Ensure container accounts for safe areas */
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  padding-top: max(40px, env(safe-area-inset-top) + 20px);
-  padding-bottom: max(40px, env(safe-area-inset-bottom) + 20px);
-  min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-}
-
-/* Mobile-specific fixes for main UI */
-@media screen and (max-width: 768px) {
-  body, html {
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: 100vh !important;
-    min-height: 100dvh !important;
-  }
-  
-  #editorUI,
-  #installUI,
-  #loadingUI {
-    min-height: 100vh !important;
-    min-height: 100dvh !important;
-  }
-  
-  .container {
-    padding: 20px 15px;
-    padding-top: max(20px, env(safe-area-inset-top) + 10px);
-    padding-bottom: max(20px, env(safe-area-inset-bottom) + 10px);
-    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  }
-}
-
-/* iOS Safari specific fixes for main UI */
-@supports (-webkit-touch-callout: none) {
-  body, html {
-    height: -webkit-fill-available;
-    min-height: -webkit-fill-available;
-  }
-  
-  #editorUI,
-  #installUI,
-  #loadingUI {
-    min-height: -webkit-fill-available;
-  }
+  width: 100%;
+  /* Ensure completely natural scrolling with no constraints */
+  min-height: 100%;
+  height: auto;
 }
 
 /* Ensure iframes have no default styling that could cause gaps */
@@ -110,6 +38,7 @@ iframe {
   background: transparent;
 }
 
+/* Typography */
 h1, h2 {
   color: var(--primary-color);
   margin-bottom: 15px;
@@ -125,6 +54,7 @@ a:hover {
   text-decoration: underline;
 }
 
+/* Buttons */
 button {
   background-color: var(--primary-color);
   color: white;
@@ -145,11 +75,51 @@ button:focus {
   outline: 3px solid var(--accent-color);
 }
 
-/* Editor UI styles */
+/* Main UI Layout */
+#editorUI, #installUI {
+  background-color: var(--light-gray);
+  width: 100%;
+  min-height: 100vh; /* Ensure minimum full screen height */
+  /* No height constraints - allow natural scrolling */
+}
+
+#loadingUI {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--light-gray);
+  border-top: 5px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Container and Layout */
 .container {
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px;
+  padding-top: max(40px, env(safe-area-inset-top) + 20px);
+  padding-bottom: 40px; /* No safe area - let content extend to device bottom */
 }
 
 header {
@@ -162,17 +132,10 @@ header {
   border-radius: var(--border-radius);
   padding: 30px;
   box-shadow: var(--box-shadow);
-  margin-bottom: env(safe-area-inset-bottom, 0px);
+  margin-bottom: 0; /* No safe area margin */
 }
 
-/* Mobile adjustments for editor card */
-@media screen and (max-width: 768px) {
-  .editor-card {
-    padding: 20px;
-    margin-bottom: max(20px, env(safe-area-inset-bottom, 0px));
-  }
-}
-
+/* Form Elements */
 .editor-label {
   display: block;
   font-weight: bold;
@@ -224,177 +187,79 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
 }
 
-/* App iframe - FIXED */
+/* App and Preview Views - Full Screen */
 #appView {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
-  height: 100dvh; /* Dynamic viewport height */
+  height: 100dvh;
   background: white;
   z-index: 999;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 #appFrame {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  border: none;
-  display: block;
-  margin: 0;
-  padding: 0;
 }
 
-/* Preview View - FIXED */
 #previewView {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
-  height: 100dvh; /* Dynamic viewport height */
+  height: 100dvh;
   z-index: 1000;
   background: white;
   display: flex;
   flex-direction: column;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 #closePreviewBtn {
   position: relative;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 44px;
   min-height: 44px;
   line-height: 44px;
   padding: 0;
+  padding-top: env(safe-area-inset-top);
+  height: calc(44px + env(safe-area-inset-top));
   background: #3498db;
   color: white;
   border: none;
   font-weight: bold;
-  z-index: 1001;
   border-radius: 0;
   flex-shrink: 0;
-  padding-top: env(safe-area-inset-top);
-  height: calc(44px + env(safe-area-inset-top));
+  z-index: 1001;
 }
 
 #previewFrame {
   position: relative;
   width: 100%;
   flex: 1;
-  border: none;
-  padding: 0;
-  margin: 0;
-  display: block;
-  min-height: 0; /* Important for flexbox */
+  min-height: 0;
 }
 
-/* Comprehensive viewport handling */
-@supports (height: 100dvh) {
-  #appView,
-  #previewView {
-    height: 100dvh;
-  }
-}
-
-@supports (height: 100lvh) {
-  #appView,
-  #previewView {
-    height: 100lvh; /* Large viewport height - maximum when UI is hidden */
-  }
-}
-
-/* iOS Safari specific fixes */
-@supports (-webkit-touch-callout: none) {
-  #appView,
-  #previewView {
-    height: -webkit-fill-available;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-  
-  #appFrame,
-  #previewFrame {
-    height: 100%;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Android Chrome specific fixes */
-@media screen and (max-width: 768px) {
-  #appView,
-  #previewView {
-    height: calc(100vh - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - env(safe-area-inset-bottom, 0px));
-  }
-}
-
-/* Force full height on mobile devices */
-@media screen and (max-device-width: 768px) {
-  #appView {
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-  
-  #previewView {
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-}
-
-/* Fallback for very old browsers */
-@supports not (height: 100dvh) {
-  #appView,
-  #previewView {
-    height: 100vh;
-    min-height: 100vh;
-  }
-}
-
-/* Prevent scrolling when app or preview is active */
+/* State Management - Only apply constraints when iframe classes are active */
 body.app-active,
 body.preview-active {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
 }
 
-/* Loading UI */
-#loadingUI {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid var(--light-gray);
-  border-top: 5px solid var(--accent-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+body.app-active #appView,
+body.preview-active #previewView {
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
 }
 
 /* Toast notification */
@@ -425,98 +290,7 @@ body.preview-active {
   opacity: 1;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  textarea {
-    height: 250px;
-  }
-  
-  .input-group {
-    flex-direction: column;
-  }
-  
-  .button-container {
-    flex-direction: column;
-  }
-  
-  button {
-    width: 100%;
-  }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .loading-spinner {
-    animation: none;
-  }
-  
-  .toast {
-    transition: none;
-  }
-  
-  button, a, textarea, #gistUrl {
-    transition: none;
-  }
-}
-
-/* High contrast mode adjustments */
-@media (prefers-contrast: more) {
-  :root {
-    --primary-color: #000;
-    --secondary-color: #222;
-    --accent-color: #0056b3;
-    --text-color: #000;
-  }
-  
-  a, button {
-    text-decoration: underline;
-  }
-}
-
-/* GitHub corner styles */
-.github-corner {
-  position: absolute;
-  top: 0;
-  right: 0;
-  color: var(--accent-color);
-  fill: var(--primary-color);
-  z-index: 100;
-}
-
-.github-corner:hover {
-  color: white;
-}
-
-.github-corner .octo-arm {
-  transform-origin: 130px 106px;
-}
-
-.github-corner:hover .octo-arm {
-  animation: octocat-wave 560ms ease-in-out;
-}
-
-@keyframes octocat-wave {
-  0%, 100% { transform: rotate(0); }
-  20%, 60% { transform: rotate(-25deg); }
-  40%, 80% { transform: rotate(10deg); }
-}
-
-@media (max-width: 768px) {
-  .github-corner {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .github-corner:hover .octo-arm {
-    animation: none;
-  }
-  
-  .github-corner .octo-arm {
-    animation: octocat-wave 560ms ease-in-out;
-  }
-}
-
-/* Installation UI styles */
+/* Installation UI */
 .installation-instructions {
   background-color: #f9f9f9;
   border-radius: var(--border-radius);
@@ -572,8 +346,145 @@ body.preview-active {
   margin-bottom: 20px;
 }
 
+/* GitHub corner */
+.github-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--accent-color);
+  fill: var(--primary-color);
+  z-index: 100;
+}
+
+.github-corner:hover {
+  color: white;
+}
+
+.github-corner .octo-arm {
+  transform-origin: 130px 106px;
+}
+
+.github-corner:hover .octo-arm {
+  animation: octocat-wave 560ms ease-in-out;
+}
+
+@keyframes octocat-wave {
+  0%, 100% { transform: rotate(0); }
+  20%, 60% { transform: rotate(-25deg); }
+  40%, 80% { transform: rotate(10deg); }
+}
+
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 20px 15px;
+    padding-top: max(20px, env(safe-area-inset-top) + 10px);
+    padding-bottom: 20px; /* No safe area - let content extend to device bottom */
+  }
+  
+  .editor-card {
+    padding: 20px;
+    margin-bottom: 20px; /* No safe area margin */
+  }
+
+  textarea {
+    height: 250px;
+  }
+  
+  .input-group {
+    flex-direction: column;
+  }
+  
+  .button-container {
+    flex-direction: column;
+  }
+  
+  button {
+    width: 100%;
+  }
+
+  .github-corner {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .github-corner:hover .octo-arm {
+    animation: none;
+  }
+  
+  .github-corner .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+  }
+
+  /* Mobile iframe constraints - only when body classes are present */
+  body.app-active,
+  body.preview-active {
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    position: fixed !important;
+  }
+  
+  body.app-active #appView,
+  body.preview-active #previewView {
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+  }
+}
+
+/* iOS Safari Support - Only for iframe views when body classes are active */
+@supports (-webkit-touch-callout: none) {
+  body.app-active,
+  body.preview-active {
+    height: -webkit-fill-available !important;
+  }
+  
+  body.app-active #appView,
+  body.preview-active #previewView {
+    height: -webkit-fill-available !important;
+    min-height: -webkit-fill-available !important;
+  }
+  
+  #appFrame,
+  #previewFrame {
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+  
+  .toast {
+    transition: none;
+  }
+  
+  button, a, textarea, #gistUrl {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+  :root {
+    --primary-color: #000;
+    --secondary-color: #222;
+    --accent-color: #0056b3;
+    --text-color: #000;
+  }
+  
+  a, button {
+    text-decoration: underline;
+  }
 }
