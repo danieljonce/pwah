@@ -351,24 +351,6 @@ textarea:focus {
   margin-bottom: 20px;
 }
 
-#android-install-button {
-  display: block;
-  width: 100%;
-  max-width: 300px;
-  margin: 20px auto 0;
-  background-color: var(--accent-color);
-  padding: 15px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  animation: pulse 2s infinite;
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 16px;
-}
-
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
